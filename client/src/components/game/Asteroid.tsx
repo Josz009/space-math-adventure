@@ -4,9 +4,10 @@ interface AsteroidProps {
   size: number;
   position: { x: number; y: number };
   rotation?: number;
+  speed?: number;
 }
 
-export function Asteroid({ size, position, rotation = 0 }: AsteroidProps) {
+export function Asteroid({ size, position, rotation = 0, speed = 1 }: AsteroidProps) {
   return (
     <motion.div
       className="absolute"
@@ -24,7 +25,7 @@ export function Asteroid({ size, position, rotation = 0 }: AsteroidProps) {
         rotate: rotation + 360,
       }}
       transition={{
-        duration: 8,
+        duration: 8 / speed, // Faster movement with higher speed
         ease: "linear",
       }}
     >

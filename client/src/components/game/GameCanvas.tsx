@@ -9,14 +9,29 @@ interface GameCanvasProps {
   onAnswer: (correct: boolean) => void;
   gamePhase: 'QUESTIONS' | 'DODGING' | 'NEW_WORLD';
   onDodgeComplete: (survived: boolean) => void;
+  wrongAnswers: number;
+  speed: number;
 }
 
-export function GameCanvas({ children, onAnswer, gamePhase, onDodgeComplete }: GameCanvasProps) {
+export function GameCanvas({ 
+  children, 
+  onAnswer, 
+  gamePhase, 
+  onDodgeComplete,
+  wrongAnswers,
+  speed
+}: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [spaceshipPosition, setSpaceshipPosition] = useState(300);
-  const [spaceshipX, setSpaceshipX] = useState(100); // X position for dodging phase
+  const [spaceshipX, setSpaceshipX] = useState(100);
   const [isPowered, setIsPowered] = useState(false);
-  const [asteroids, setAsteroids] = useState<Array<{ id: number; size: number; position: { x: number; y: number }; rotation: number }>>([]);
+  const [asteroids, setAsteroids] = useState<Array<{ 
+    id: number; 
+    size: number; 
+    position: { x: number; y: number }; 
+    rotation: number;
+    speed: number;
+  }>>([]);
   const [isGameOver, setIsGameOver] = useState(false);
 
   // Handle keyboard controls during dodge phase
@@ -24,25 +39,27 @@ export function GameCanvas({ children, onAnswer, gamePhase, onDodgeComplete }: G
     if (gamePhase !== 'DODGING') return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      const moveAmount = 30 * speed; // Increased movement speed based on performance
+
       switch (e.key) {
         case 'ArrowUp':
-          setSpaceshipPosition(prev => Math.max(50, prev - 30));
+          setSpaceshipPosition(prev => Math.max(50, prev - moveAmount));
           break;
         case 'ArrowDown':
-          setSpaceshipPosition(prev => Math.min(550, prev + 30));
+          setSpaceshipPosition(prev => Math.min(550, prev + moveAmount));
           break;
         case 'ArrowLeft':
-          setSpaceshipX(prev => Math.max(50, prev - 30));
+          setSpaceshipX(prev => Math.max(50, prev - moveAmount));
           break;
         case 'ArrowRight':
-          setSpaceshipX(prev => Math.min(750, prev + 30));
+          setSpaceshipX(prev => Math.min(750, prev + moveAmount));
           break;
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [gamePhase]);
+  }, [gamePhase, speed]);
 
   // Handle collision detection during dodge phase
   useEffect(() => {
@@ -95,20 +112,24 @@ export function GameCanvas({ children, onAnswer, gamePhase, onDodgeComplete }: G
 
     const interval = setInterval(() => {
       if (asteroids.length < 5) {
+        const baseSize = 20 + Math.random() * 30;
+        const sizeIncrease = wrongAnswers * 5; // Asteroids get bigger with wrong answers
+
         setAsteroids(prev => [...prev, {
           id: Date.now(),
-          size: Math.random() * 30 + 20,
+          size: baseSize + sizeIncrease,
           position: { 
             x: window.innerWidth,
             y: Math.random() * 400 + 100
           },
-          rotation: Math.random() * 360
+          rotation: Math.random() * 360,
+          speed: speed * (1 + Math.random() * 0.5) // Asteroids move faster with better performance
         }]);
       }
     }, gamePhase === 'DODGING' ? 1000 : 2000);
 
     return () => clearInterval(interval);
-  }, [asteroids.length, gamePhase]);
+  }, [asteroids.length, gamePhase, wrongAnswers, speed]);
 
   // Clean up asteroids that have moved off screen
   useEffect(() => {
@@ -126,7 +147,7 @@ export function GameCanvas({ children, onAnswer, gamePhase, onDodgeComplete }: G
     return () => clearInterval(cleanup);
   }, [gamePhase, onDodgeComplete]);
 
-  // Stars background effect
+  // Stars background effect with speed modification
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -151,7 +172,7 @@ export function GameCanvas({ children, onAnswer, gamePhase, onDodgeComplete }: G
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         size: Math.random() * 2,
-        speed: Math.random() * 0.5 + 0.1
+        speed: (Math.random() * 0.5 + 0.1) * speed // Stars move faster with better performance
       });
     }
 
@@ -182,7 +203,7 @@ export function GameCanvas({ children, onAnswer, gamePhase, onDodgeComplete }: G
       window.removeEventListener('resize', resizeCanvas);
       window.cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [speed]);
 
   return (
     <div className="relative w-full h-[600px] overflow-hidden rounded-2xl shadow-2xl">

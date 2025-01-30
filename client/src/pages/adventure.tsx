@@ -18,6 +18,7 @@ interface GameState {
   grade: number | null;
   correctAnswers: number;
   totalCorrectAnswers: number;
+  wrongAnswers: number;
 }
 
 export default function Adventure() {
@@ -28,13 +29,15 @@ export default function Adventure() {
     topic: null,
     grade: null,
     correctAnswers: 0,
-    totalCorrectAnswers: 0
+    totalCorrectAnswers: 0,
+    wrongAnswers: 0
   });
   const [gamePhase, setGamePhase] = useState<GamePhase>('QUESTIONS');
   const [problem, setProblem] = useState(generateMathProblem(1));
   const [performance, setPerformance] = useState({ correct: 0, total: 0 });
   const [showReward, setShowReward] = useState(false);
   const [showTopicSelector, setShowTopicSelector] = useState(true);
+  const [showInstructions, setShowInstructions] = useState(false);
 
   useEffect(() => {
     const difficulty = calculateDifficulty(performance);
@@ -47,6 +50,7 @@ export default function Adventure() {
     setGameState(prev => ({ ...prev, topic, grade }));
     setShowTopicSelector(false);
     setProblem(generateMathProblem(1, topic as any));
+    setShowInstructions(true);
   };
 
   const handleAnswer = useCallback((correct: boolean) => {
@@ -63,7 +67,10 @@ export default function Adventure() {
 
         // After 5 correct answers, switch to dodging phase
         if (newCorrectAnswers === 5) {
-          setTimeout(() => setGamePhase('DODGING'), 1000);
+          setTimeout(() => {
+            setGamePhase('DODGING');
+            setShowInstructions(true);
+          }, 1000);
         }
 
         // After 15 total correct answers, show new world
@@ -81,6 +88,11 @@ export default function Adventure() {
           totalCorrectAnswers: newTotalCorrectAnswers
         };
       });
+    } else {
+      setGameState(prev => ({
+        ...prev,
+        wrongAnswers: prev.wrongAnswers + 1
+      }));
     }
   }, []);
 
@@ -90,16 +102,19 @@ export default function Adventure() {
       setGameState(prev => ({
         ...prev,
         level: prev.level + 1,
-        score: prev.score + 500
+        score: prev.score + 500,
+        wrongAnswers: 0 // Reset wrong answers counter
       }));
     } else {
       // If hit by asteroid, reset current progress but keep total
       setGameState(prev => ({
         ...prev,
-        correctAnswers: 0
+        correctAnswers: 0,
+        wrongAnswers: prev.wrongAnswers + 1
       }));
       setGamePhase('QUESTIONS');
     }
+    setShowInstructions(true);
   }, []);
 
   if (!gameState.topic || !gameState.grade) {
@@ -152,6 +167,8 @@ export default function Adventure() {
           onAnswer={handleAnswer} 
           gamePhase={gamePhase}
           onDodgeComplete={handleDodgeComplete}
+          wrongAnswers={gameState.wrongAnswers}
+          speed={Math.min(2, 1 + (gameState.totalCorrectAnswers / 10))}
         >
           {gamePhase === 'QUESTIONS' && (
             <MathProblem 
@@ -162,6 +179,39 @@ export default function Adventure() {
         </GameCanvas>
 
         <AnimatePresence>
+          {showInstructions && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-white/90 p-6 rounded-lg shadow-xl max-w-md text-center"
+            >
+              {gamePhase === 'QUESTIONS' ? (
+                <>
+                  <h3 className="text-xl font-bold mb-2">Answer Questions!</h3>
+                  <p className="text-gray-700">
+                    Get 5 correct answers to power up your spaceship. 
+                    Each wrong answer will make the asteroids bigger!
+                  </p>
+                </>
+              ) : gamePhase === 'DODGING' ? (
+                <>
+                  <h3 className="text-xl font-bold mb-2">Dodge Asteroids!</h3>
+                  <p className="text-gray-700">
+                    Use arrow keys to move your spaceship. 
+                    Survive the asteroid field to continue!
+                  </p>
+                </>
+              ) : null}
+              <Button 
+                className="mt-4"
+                onClick={() => setShowInstructions(false)}
+              >
+                Got it!
+              </Button>
+            </motion.div>
+          )}
+
           {showReward && gamePhase === 'NEW_WORLD' && (
             <motion.div
               initial={{ scale: 0 }}
@@ -181,6 +231,7 @@ export default function Adventure() {
                   onClick={() => {
                     setShowReward(false);
                     setGamePhase('QUESTIONS');
+                    setShowInstructions(true);
                   }}
                 >
                   Continue to Next World
