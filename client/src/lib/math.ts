@@ -5,7 +5,14 @@ export interface MathProblem {
   difficulty: number;
 }
 
-const operations = ['+', '-', '*', '/'];
+const operations = {
+  addition: '+',
+  subtraction: '-',
+  multiplication: '*',
+  division: '/',
+  percentages: '%',
+  mixed: 'mixed'
+};
 
 function generateNumber(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -19,8 +26,11 @@ function generateWrongAnswer(correct: number, min: number, max: number): number 
   return wrong;
 }
 
-export function generateMathProblem(difficulty: number): MathProblem {
-  const operation = operations[Math.floor(Math.random() * operations.length)];
+export function generateMathProblem(difficulty: number, topic: string = 'mixed'): MathProblem {
+  let operation = topic === 'mixed' 
+    ? operations[Object.keys(operations)[Math.floor(Math.random() * (Object.keys(operations).length - 1))]]
+    : operations[topic];
+
   let num1: number, num2: number, answer: number;
 
   switch (difficulty) {
@@ -46,9 +56,14 @@ export function generateMathProblem(difficulty: number): MathProblem {
       answer = num1 + num2;
       break;
     case '-':
+      // Ensure no negative numbers for young students
+      if (num1 < num2) [num1, num2] = [num2, num1];
       answer = num1 - num2;
       break;
     case '*':
+      // Adjust numbers for multiplication to be more manageable
+      num1 = Math.min(num1, 12);
+      num2 = Math.min(num2, 12);
       answer = num1 * num2;
       break;
     case '/':
@@ -56,15 +71,31 @@ export function generateMathProblem(difficulty: number): MathProblem {
       answer = num2;
       num1 = num2 * generateNumber(1, 10);
       break;
+    case '%':
+      // Generate percentage problems
+      num2 = generateNumber(1, 10) * 10; // Percentages like 10%, 20%, etc.
+      num1 = generateNumber(1, 100);
+      answer = (num1 * num2) / 100;
+      return {
+        question: `What is ${num2}% of ${num1}?`,
+        options: [
+          answer.toString(),
+          (answer + 10).toString(),
+          (answer - 10).toString(),
+          (answer * 2).toString(),
+        ].sort(() => Math.random() - 0.5),
+        answer: answer.toString(),
+        difficulty,
+      };
     default:
       answer = num1 + num2;
   }
 
   const options = [
     answer.toString(),
-    generateWrongAnswer(answer, answer - 10, answer + 10).toString(),
-    generateWrongAnswer(answer, answer - 5, answer + 15).toString(),
-    generateWrongAnswer(answer, answer - 15, answer + 5).toString(),
+    generateWrongAnswer(answer, Math.max(0, answer - 10), answer + 10).toString(),
+    generateWrongAnswer(answer, Math.max(0, answer - 5), answer + 15).toString(),
+    generateWrongAnswer(answer, Math.max(0, answer - 15), answer + 5).toString(),
   ].sort(() => Math.random() - 0.5);
 
   return {
