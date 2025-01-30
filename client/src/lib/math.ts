@@ -5,7 +5,16 @@ export interface MathProblem {
   difficulty: number;
 }
 
-const operations = {
+type Operations = {
+  addition: string;
+  subtraction: string;
+  multiplication: string;
+  division: string;
+  percentages: string;
+  mixed: string;
+};
+
+const operations: Operations = {
   addition: '+',
   subtraction: '-',
   multiplication: '*',
@@ -26,9 +35,9 @@ function generateWrongAnswer(correct: number, min: number, max: number): number 
   return wrong;
 }
 
-export function generateMathProblem(difficulty: number, topic: string = 'mixed'): MathProblem {
-  let operation = topic === 'mixed' 
-    ? operations[Object.keys(operations)[Math.floor(Math.random() * (Object.keys(operations).length - 1))]]
+export function generateMathProblem(difficulty: number, topic: keyof Operations = 'mixed'): MathProblem {
+  const operation = topic === 'mixed' 
+    ? operations[Object.keys(operations)[Math.floor(Math.random() * (Object.keys(operations).length - 1))] as keyof Operations]
     : operations[topic];
 
   let num1: number, num2: number, answer: number;
@@ -91,16 +100,14 @@ export function generateMathProblem(difficulty: number, topic: string = 'mixed')
       answer = num1 + num2;
   }
 
-  const options = [
-    answer.toString(),
-    generateWrongAnswer(answer, Math.max(0, answer - 10), answer + 10).toString(),
-    generateWrongAnswer(answer, Math.max(0, answer - 5), answer + 15).toString(),
-    generateWrongAnswer(answer, Math.max(0, answer - 15), answer + 5).toString(),
-  ].sort(() => Math.random() - 0.5);
-
   return {
     question: `${num1} ${operation} ${num2} = ?`,
-    options,
+    options: [
+      answer.toString(),
+      generateWrongAnswer(answer, Math.max(0, answer - 10), answer + 10).toString(),
+      generateWrongAnswer(answer, Math.max(0, answer - 5), answer + 15).toString(),
+      generateWrongAnswer(answer, Math.max(0, answer - 15), answer + 5).toString(),
+    ].sort(() => Math.random() - 0.5),
     answer: answer.toString(),
     difficulty,
   };

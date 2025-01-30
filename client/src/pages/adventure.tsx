@@ -31,12 +31,16 @@ export default function Adventure() {
 
   useEffect(() => {
     const difficulty = calculateDifficulty(performance);
-    setProblem(generateMathProblem(difficulty));
-  }, [performance]);
+    if (gameState.topic) {
+      setProblem(generateMathProblem(difficulty, gameState.topic));
+    }
+  }, [performance, gameState.topic]);
 
   const handleTopicSelect = (topic: string, grade: number) => {
     setGameState(prev => ({ ...prev, topic, grade }));
     setShowTopicSelector(false);
+    // Generate first problem with the selected topic
+    setProblem(generateMathProblem(1, topic));
   };
 
   const handleAnswer = (correct: boolean) => {
