@@ -237,7 +237,8 @@ export function TutorialAnimation({ topic, onComplete, difficulty }: TutorialAni
           </motion.div>
         </AnimatePresence>
 
-        <div className="absolute right-0 top-1/2 transform translate-x-full -translate-y-1/2">
+        {/* Updated AlienMentor positioning and size */}
+        <div className="absolute right-0 top-1/2 transform translate-x-1/2 -translate-y-1/2 scale-75">
           <AlienMentor
             mood="thinking"
             isVisible={!isComplete}
