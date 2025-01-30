@@ -23,7 +23,7 @@ interface AnalyticsPanelProps {
 }
 
 export function AnalyticsPanel({ progress }: AnalyticsPanelProps) {
-  // Calculate performance trends
+  // Calculate performance trends with null checks
   const performanceTrends = progress.map(p => ({
     date: new Date(p.updatedAt!).toLocaleDateString(),
     accuracy: p.correctAnswers && p.totalAttempts 
@@ -33,7 +33,7 @@ export function AnalyticsPanel({ progress }: AnalyticsPanelProps) {
     score: p.score || 0,
   }));
 
-  // Calculate topic performance
+  // Calculate topic performance with null checks
   const topicPerformance = progress.reduce((acc: Record<string, { correct: number, total: number }>, p) => {
     const performance = p.topicPerformance as Record<string, { correct: number, total: number }> | null;
     if (performance) {
