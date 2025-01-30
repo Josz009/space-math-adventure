@@ -28,6 +28,45 @@ export function GameCanvas({ children, onAnswer, gamePhase, onDodgeComplete, wro
   const [isGameOver, setIsGameOver] = useState(false);
   const [explosionPosition, setExplosionPosition] = useState<{x: number, y: number} | null>(null);
   const [showGameOver, setShowGameOver] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+
+  // Add resize handler
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      setCanvasSize({
+        width: window.innerWidth,
+        height: Math.min(window.innerHeight * 0.7, 600)
+      });
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Handle touch controls for mobile
+  useEffect(() => {
+    if (!isMobile || gamePhase !== 'DODGING' || isGameOver) return;
+
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+
+      setSpaceshipX(Math.max(50, Math.min(canvasSize.width - 50, x)));
+      setSpaceshipPosition(Math.max(50, Math.min(canvasSize.height - 50, y)));
+    };
+
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    return () => document.removeEventListener('touchmove', handleTouchMove);
+  }, [isMobile, gamePhase, isGameOver, canvasSize]);
 
   // Sound effects
   useEffect(() => {
@@ -303,26 +342,27 @@ export function GameCanvas({ children, onAnswer, gamePhase, onDodgeComplete, wro
   }, [speed]);
 
   return (
-    <div className="relative w-full h-[600px] overflow-hidden rounded-2xl shadow-2xl">
+    <div className="relative w-full overflow-hidden rounded-lg shadow-2xl bg-gradient-to-b from-indigo-900 via-purple-900 to-pink-900"
+         style={{ height: canvasSize.height }}>
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 bg-gradient-to-b from-indigo-900 via-purple-900 to-pink-900"
+        className="absolute inset-0"
         style={{ width: '100%', height: '100%' }}
       />
       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10" />
 
-      {/* Game phase message */}
+      {/* Game phase message - make it responsive */}
       {gamePhase === 'DODGING' && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white/90 px-6 py-2 rounded-full text-purple-900 font-bold"
+          className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white/90 px-4 py-2 rounded-full text-purple-900 font-bold text-sm md:text-base"
         >
-          Dodge the Asteroids! Use Arrow Keys to Move
+          {isMobile ? "Touch and drag to move!" : "Use Arrow Keys to Move"}
         </motion.div>
       )}
 
-      {/* Spaceship */}
+      {/* Spaceship with responsive positioning */}
       <AnimatePresence>
         {!isGameOver && (
           <Spaceship
@@ -333,7 +373,7 @@ export function GameCanvas({ children, onAnswer, gamePhase, onDodgeComplete, wro
         )}
       </AnimatePresence>
 
-      {/* Explosion Effect */}
+      {/* Responsive explosion effect */}
       <AnimatePresence>
         {explosionPosition && (
           <motion.div
@@ -343,10 +383,10 @@ export function GameCanvas({ children, onAnswer, gamePhase, onDodgeComplete, wro
             transition={{ duration: 0.5 }}
             className="absolute"
             style={{
-              left: explosionPosition.x - 50,
-              top: explosionPosition.y - 50,
-              width: 100,
-              height: 100,
+              left: explosionPosition.x - (isMobile ? 25 : 50),
+              top: explosionPosition.y - (isMobile ? 25 : 50),
+              width: isMobile ? 50 : 100,
+              height: isMobile ? 50 : 100,
               transform: 'translate(-50%, -50%)',
             }}
           >
@@ -359,7 +399,7 @@ export function GameCanvas({ children, onAnswer, gamePhase, onDodgeComplete, wro
         )}
       </AnimatePresence>
 
-      {/* Game Over Message */}
+      {/* Game Over Message with responsive text */}
       <AnimatePresence>
         {showGameOver && (
           <motion.div
@@ -368,19 +408,19 @@ export function GameCanvas({ children, onAnswer, gamePhase, onDodgeComplete, wro
             exit={{ scale: 0, opacity: 0 }}
             className="absolute inset-0 flex items-center justify-center"
           >
-            <div className="bg-black/80 text-white px-8 py-4 rounded-lg text-2xl font-bold">
+            <div className="bg-black/80 text-white px-4 md:px-8 py-2 md:py-4 rounded-lg text-lg md:text-2xl font-bold">
               Game Over! Spaceship Destroyed
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Asteroids */}
+      {/* Asteroids with responsive sizing */}
       <AnimatePresence>
         {asteroids.map(asteroid => (
           <Asteroid
             key={asteroid.id}
-            size={asteroid.size}
+            size={isMobile ? asteroid.size * 0.7 : asteroid.size}
             position={asteroid.position}
             rotation={asteroid.rotation}
             speed={asteroid.speed}
@@ -388,10 +428,10 @@ export function GameCanvas({ children, onAnswer, gamePhase, onDodgeComplete, wro
         ))}
       </AnimatePresence>
 
-      {/* Math Problem UI */}
+      {/* Math Problem UI with responsive layout */}
       {gamePhase === 'QUESTIONS' && (
         <motion.div
-          className="relative z-10 h-full flex items-center justify-center p-8"
+          className="relative z-10 h-full flex items-center justify-center p-4 md:p-8"
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{
