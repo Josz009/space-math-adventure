@@ -3,6 +3,8 @@ import { SpaceAchievement } from './SpaceAchievement';
 import { SPACE_ACHIEVEMENTS } from '@/lib/achievements';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
+import { AchievementUnlockAnimation } from './AchievementUnlockAnimation';
+import { useState, useEffect } from 'react';
 
 interface AchievementsPanelProps {
   unlockedAchievements: string[];
@@ -15,6 +17,21 @@ interface AchievementsPanelProps {
 }
 
 export function AchievementsPanel({ unlockedAchievements, stats }: AchievementsPanelProps) {
+  const [previousUnlocked, setPreviousUnlocked] = useState<string[]>([]);
+  const [newlyUnlocked, setNewlyUnlocked] = useState<typeof SPACE_ACHIEVEMENTS[number] | null>(null);
+
+  // Check for newly unlocked achievements
+  useEffect(() => {
+    const newAchievements = unlockedAchievements.filter(id => !previousUnlocked.includes(id));
+    if (newAchievements.length > 0) {
+      const achievement = SPACE_ACHIEVEMENTS.find(a => a.id === newAchievements[0]);
+      if (achievement) {
+        setNewlyUnlocked(achievement);
+      }
+    }
+    setPreviousUnlocked(unlockedAchievements);
+  }, [unlockedAchievements, previousUnlocked]);
+
   return (
     <Card className="p-6">
       <h2 className="text-2xl font-bold mb-6">Space Achievements</h2>
@@ -66,6 +83,12 @@ export function AchievementsPanel({ unlockedAchievements, stats }: AchievementsP
           </AnimatePresence>
         </div>
       </ScrollArea>
+
+      {/* Achievement unlock animation */}
+      <AchievementUnlockAnimation
+        achievement={newlyUnlocked}
+        onComplete={() => setNewlyUnlocked(null)}
+      />
     </Card>
   );
 }
