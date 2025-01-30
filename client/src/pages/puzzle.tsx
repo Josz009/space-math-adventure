@@ -45,54 +45,47 @@ export default function Puzzle() {
   const [showHint, setShowHint] = useState(false);
   const [showTopicSelector, setShowTopicSelector] = useState(true);
   const [showCelebration, setShowCelebration] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handleTopicSelect = (topic: string, grade: number) => {
     setGameState(prev => ({ ...prev, topic, grade }));
     setShowTopicSelector(false);
   };
 
-  const handleSubmit = async () => {
-    if (isTransitioning) return;
-
+  const handleSubmit = () => {
     const currentAnswer = answer.trim();
     const correctAnswer = PUZZLES[gameState.currentPuzzle].answer;
 
     if (currentAnswer === correctAnswer) {
-      setIsTransitioning(true);
+      // Show celebration first
       setShowCelebration(true);
 
-      // Update score immediately
+      // Update score
       setGameState(prev => ({
         ...prev,
-        score: prev.score + 100,
+        score: prev.score + 100
       }));
 
-      // Wait for celebration animation
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Clear input and hide hint
+      setAnswer('');
+      setShowHint(false);
 
-      // Move to next puzzle
-      if (gameState.currentPuzzle < PUZZLES.length - 1) {
-        setGameState(prev => ({
-          ...prev,
-          currentPuzzle: prev.currentPuzzle + 1
-        }));
-        setAnswer('');
-        setShowHint(false);
-      }
-
-      // Hide celebration and reset transition state
+      // Wait for celebration animation, then move to next puzzle
       setTimeout(() => {
         setShowCelebration(false);
-        setIsTransitioning(false);
-      }, 500);
+        setGameState(prev => ({
+          ...prev,
+          currentPuzzle: prev.currentPuzzle < PUZZLES.length - 1 
+            ? prev.currentPuzzle + 1 
+            : prev.currentPuzzle
+        }));
+      }, 1000);
     } else {
       setAnswer('');
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !isTransitioning) {
+    if (e.key === 'Enter') {
       handleSubmit();
     }
   };
@@ -156,14 +149,12 @@ export default function Puzzle() {
                 onKeyPress={handleKeyPress}
                 placeholder="Your answer..."
                 className="text-lg"
-                disabled={isTransitioning}
               />
 
               <div className="flex gap-4">
                 <Button
                   onClick={handleSubmit}
                   className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                  disabled={isTransitioning}
                 >
                   Submit Answer
                 </Button>
@@ -172,7 +163,6 @@ export default function Puzzle() {
                   variant="outline"
                   onClick={() => setShowHint(true)}
                   className="w-full"
-                  disabled={isTransitioning}
                 >
                   Need a Hint?
                 </Button>
