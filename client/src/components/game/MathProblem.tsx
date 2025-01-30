@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AlienMentor } from './AlienMentor';
 
 interface MathProblemProps {
   problem: {
@@ -14,13 +15,28 @@ interface MathProblemProps {
 
 export function MathProblem({ problem, onAnswer }: MathProblemProps) {
   const [selected, setSelected] = useState<string | null>(null);
+  const [mentorMood, setMentorMood] = useState<'thinking' | 'happy' | 'excited' | 'encouraging'>('thinking');
+  const [showMentor, setShowMentor] = useState(true);
+
+  useEffect(() => {
+    // Reset mentor state when problem changes
+    setSelected(null);
+    setMentorMood('thinking');
+    setShowMentor(true);
+  }, [problem]);
 
   const handleAnswer = (option: string) => {
     setSelected(option);
     const correct = option === problem.answer;
+
+    // Update mentor mood based on answer
+    setMentorMood(correct ? 'excited' : 'encouraging');
+
     setTimeout(() => {
       onAnswer(correct);
       setSelected(null);
+      // Brief pause before showing next problem's thinking mood
+      setTimeout(() => setMentorMood('thinking'), 500);
     }, 1000);
   };
 
@@ -42,7 +58,7 @@ export function MathProblem({ problem, onAnswer }: MathProblemProps) {
         </motion.div>
 
         <div className="grid grid-cols-2 gap-6">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="sync">
             {problem.options.map((option, index) => (
               <motion.div
                 key={option}
@@ -73,6 +89,11 @@ export function MathProblem({ problem, onAnswer }: MathProblemProps) {
             ))}
           </AnimatePresence>
         </div>
+
+        <AlienMentor
+          mood={mentorMood}
+          isVisible={showMentor}
+        />
       </CardContent>
     </Card>
   );
