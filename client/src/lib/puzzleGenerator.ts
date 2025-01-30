@@ -9,47 +9,36 @@ const GRADE_RANGES = {
   5: { min: 1, max: 1000 }
 };
 
-// Define operations allowed per grade
-const GRADE_OPERATIONS = {
-  1: ['addition', 'subtraction'],
-  2: ['addition', 'subtraction', 'basic_multiplication'],
-  3: ['addition', 'subtraction', 'multiplication', 'basic_division'],
-  4: ['multiplication', 'division', 'fractions', 'decimals'],
-  5: ['multiplication', 'division', 'fractions', 'decimals', 'percentages']
-};
-
 // Helper to generate random number within range
-const randomNumber = (min: number, max: number) => 
+const randomNumber = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
-
-// Helper to ensure multiplication problems are grade-appropriate
-const generateMultiplicationNumbers = (grade: number) => {
-  const range = GRADE_RANGES[grade as keyof typeof GRADE_RANGES];
-  const factor1 = randomNumber(2, Math.min(12, range.max));
-  const factor2 = randomNumber(2, Math.min(12, range.max));
-  return { factor1, factor2 };
-};
 
 // Generate word problems with real-world contexts
 const CONTEXTS = {
+  addition: [
+    { template: "There are {n1} red balloons and {n2} blue balloons. How many balloons are there in total?", items: ['balloons', 'marbles', 'stickers'] },
+    { template: "You have {n1} apples and your friend gives you {n2} more. How many apples do you have now?", items: ['apples', 'books', 'pencils'] }
+  ],
+  subtraction: [
+    { template: "You have {n1} candies and give {n2} to your friend. How many candies do you have left?", items: ['candies', 'cards', 'toys'] },
+    { template: "There are {n1} birds in a tree and {n2} fly away. How many birds are left?", items: ['birds', 'butterflies', 'leaves'] }
+  ],
   multiplication: [
-    { template: "There are {n1} rows with {n2} objects in each row. How many objects are there in total?", items: ['desks', 'flowers', 'books', 'cookies'] },
-    { template: "A teacher has {n1} boxes with {n2} pencils in each box. How many pencils are there in total?", items: ['pencils', 'markers', 'erasers', 'crayons'] },
-    { template: "In a garden, there are {n1} trees and each tree has {n2} fruits. How many fruits are there in total?", items: ['apples', 'oranges', 'pears', 'plums'] }
+    { template: "There are {n1} rows with {n2} objects in each row. How many objects are there in total?", items: ['desks', 'flowers', 'books'] },
+    { template: "Each box has {n2} items. How many items are in {n1} boxes?", items: ['pencils', 'erasers', 'crayons'] }
   ],
   division: [
-    { template: "There are {n1} objects that need to be divided equally into {n2} groups. How many objects will be in each group?", items: ['candies', 'stickers', 'marbles', 'cards'] },
-    { template: "{n1} students need to be divided into {n2} equal teams. How many students will be in each team?", items: ['students'] }
+    { template: "{n1} objects need to be divided equally into {n2} groups. How many objects will be in each group?", items: ['candies', 'stickers', 'marbles'] },
+    { template: "You want to share {n1} {item} equally among {n2} friends. How many will each friend get?", items: ['cookies', 'cards', 'toys'] }
   ]
 };
 
 // Generate appropriate emojis for visual representation
 const CATEGORY_EMOJIS = {
-  multiplication: ['🎲', '📚', '🍪', '🌸', '✏️', '📦'],
-  division: ['🍕', '🎪', '📏', '🎯', '🎨'],
-  fractions: ['🍰', '🍕', '🍫', '📊', '⭐'],
-  decimals: ['💰', '📏', '⚖️', '🏃', '📐'],
-  basic_operations: ['🔢', '🎯', '🎲', '🎮', '🎨']
+  addition: ['➕', '🎈', '🍎', '📚', '✏️'],
+  subtraction: ['➖', '🍬', '🦋', '🎴', '🧸'],
+  multiplication: ['✖️', '📚', '🌸', '📦', '🎨'],
+  division: ['➗', '🍪', '🎯', '🎪', '🎨']
 };
 
 export interface GeneratedPuzzle {
@@ -64,19 +53,62 @@ export interface GeneratedPuzzle {
 export const generatePuzzle = (category: string, grade: number): GeneratedPuzzle => {
   const id = Date.now().toString();
   const range = GRADE_RANGES[grade as keyof typeof GRADE_RANGES] || GRADE_RANGES[4];
-  
+
   let puzzle: GeneratedPuzzle;
-  
+
   switch (category) {
+    case 'addition': {
+      const num1 = randomNumber(range.min, range.max);
+      const num2 = randomNumber(range.min, range.max);
+      const context = CONTEXTS.addition[Math.floor(Math.random() * CONTEXTS.addition.length)];
+      const item = context.items[Math.floor(Math.random() * context.items.length)];
+      const question = context.template
+        .replace('{n1}', num1.toString())
+        .replace('{n2}', num2.toString())
+        .replace('objects', item);
+
+      puzzle = {
+        id,
+        type: 'addition',
+        question,
+        answer: (num1 + num2).toString(),
+        hint: `Add ${num1} and ${num2}`,
+        image: CATEGORY_EMOJIS.addition[Math.floor(Math.random() * CATEGORY_EMOJIS.addition.length)]
+      };
+      break;
+    }
+
+    case 'subtraction': {
+      const num1 = randomNumber(range.min, range.max);
+      const num2 = randomNumber(range.min, num1); // Ensure num2 is not greater than num1
+      const context = CONTEXTS.subtraction[Math.floor(Math.random() * CONTEXTS.subtraction.length)];
+      const item = context.items[Math.floor(Math.random() * context.items.length)];
+      const question = context.template
+        .replace('{n1}', num1.toString())
+        .replace('{n2}', num2.toString())
+        .replace('objects', item);
+
+      puzzle = {
+        id,
+        type: 'subtraction',
+        question,
+        answer: (num1 - num2).toString(),
+        hint: `Subtract ${num2} from ${num1}`,
+        image: CATEGORY_EMOJIS.subtraction[Math.floor(Math.random() * CATEGORY_EMOJIS.subtraction.length)]
+      };
+      break;
+    }
+
     case 'multiplication': {
-      const { factor1, factor2 } = generateMultiplicationNumbers(grade);
+      const factor1 = randomNumber(2, Math.min(12, range.max));
+      const factor2 = randomNumber(2, Math.min(12, range.max));
       const context = CONTEXTS.multiplication[Math.floor(Math.random() * CONTEXTS.multiplication.length)];
       const item = context.items[Math.floor(Math.random() * context.items.length)];
       const question = context.template
         .replace('{n1}', factor1.toString())
         .replace('{n2}', factor2.toString())
         .replace('objects', item);
-      
+
       puzzle = {
         id,
         type: 'multiplication',
@@ -87,7 +119,7 @@ export const generatePuzzle = (category: string, grade: number): GeneratedPuzzle
       };
       break;
     }
-    
+
     case 'division': {
       const divisor = randomNumber(2, Math.min(12, range.max));
       const result = randomNumber(1, Math.min(10, range.max));
@@ -97,8 +129,8 @@ export const generatePuzzle = (category: string, grade: number): GeneratedPuzzle
       const question = context.template
         .replace('{n1}', dividend.toString())
         .replace('{n2}', divisor.toString())
-        .replace('objects', item);
-      
+        .replace('{item}', item);
+
       puzzle = {
         id,
         type: 'division',
@@ -109,20 +141,21 @@ export const generatePuzzle = (category: string, grade: number): GeneratedPuzzle
       };
       break;
     }
-    
+
     default: {
-      // Default to basic multiplication for now
-      const { factor1, factor2 } = generateMultiplicationNumbers(grade);
+      // Default to addition if category is not recognized
+      const num1 = randomNumber(range.min, range.max);
+      const num2 = randomNumber(range.min, range.max);
       puzzle = {
         id,
-        type: 'multiplication',
-        question: `What is ${factor1} × ${factor2}?`,
-        answer: (factor1 * factor2).toString(),
-        hint: `Think of ${factor1} groups of ${factor2} objects`,
-        image: '🎲'
+        type: 'addition',
+        question: `What is ${num1} + ${num2}?`,
+        answer: (num1 + num2).toString(),
+        hint: `Add ${num1} and ${num2}`,
+        image: '➕'
       };
     }
   }
-  
+
   return puzzle;
 };
