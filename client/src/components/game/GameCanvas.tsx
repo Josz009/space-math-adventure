@@ -86,10 +86,10 @@ export function GameCanvas({
     if (gamePhase !== 'DODGING' || isGameOver) return;
 
     const checkCollisions = () => {
-      const shipRadius = 30; // Increased collision radius for better detection
+      const shipRadius = 25; // Adjusted for new ship size
       const shipBounds = {
-        x: spaceshipX + 40, // Adjusted to match visual center of ship
-        y: spaceshipPosition,
+        x: spaceshipX + 25, // Adjusted to match visual center of ship
+        y: spaceshipPosition + 16,
         radius: shipRadius
       };
 
@@ -119,14 +119,14 @@ export function GameCanvas({
             onDodgeComplete(false);
             setShowGameOver(false);
             setExplosionPosition(null);
-            setIsGameOver(false); // Reset game over state
+            setIsGameOver(false);
           }, 2000);
           return;
         }
       }
     };
 
-    const interval = setInterval(checkCollisions, 50); // Increased check frequency
+    const interval = setInterval(checkCollisions, 16); // Increased check frequency for better detection
     return () => clearInterval(interval);
   }, [gamePhase, asteroids, spaceshipPosition, spaceshipX, onDodgeComplete, isGameOver]);
 
@@ -167,22 +167,35 @@ export function GameCanvas({
 
   // Handle asteroids cleanup and phase transition
   useEffect(() => {
+    let transitionTimeout: NodeJS.Timeout;
     const cleanup = setInterval(() => {
       setAsteroids(prev => {
         const remaining = prev.filter(asteroid => asteroid.position.x > -200);
-        // If in dodge phase and all asteroids have passed
+
+        // If in dodge phase and all asteroids have passed, schedule transition
         if (gamePhase === 'DODGING' && remaining.length === 0 && prev.length > 0 && !isGameOver) {
-          setTimeout(() => {
+          // Clear any existing transition timeout
+          if (transitionTimeout) {
+            clearTimeout(transitionTimeout);
+          }
+
+          // Set a new transition timeout
+          transitionTimeout = setTimeout(() => {
             setSpaceshipX(100);
             setSpaceshipPosition(300);
             onDodgeComplete(true);
-          }, 1000); // Short delay before transition
+          }, 1000); // Delay transition to ensure last asteroid is fully off screen
         }
         return remaining;
       });
-    }, 100); // More frequent checks
+    }, 100);
 
-    return () => clearInterval(cleanup);
+    return () => {
+      clearInterval(cleanup);
+      if (transitionTimeout) {
+        clearTimeout(transitionTimeout);
+      }
+    };
   }, [gamePhase, onDodgeComplete, isGameOver]);
 
   // When game phase changes to DODGING, spawn initial asteroids

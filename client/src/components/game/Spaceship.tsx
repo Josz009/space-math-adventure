@@ -21,16 +21,16 @@ export function Spaceship({ position, powered, x }: SpaceshipProps) {
         scale: { duration: 0.2 }
       }}
     >
-      <div className="relative w-32 h-24">
+      <div className="relative w-20 h-16">
         {/* Engine flames */}
         {powered && (
           <motion.div
-            className="absolute -left-12 top-1/2 -translate-y-1/2"
+            className="absolute -left-8 top-1/2 -translate-y-1/2"
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.5 }}
           >
-            <div className="w-16 h-12">
+            <div className="w-10 h-8">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500 via-yellow-500 to-transparent rounded-l-full blur-sm animate-pulse" />
               <div className="absolute inset-1 bg-gradient-to-r from-yellow-300 via-orange-400 to-transparent rounded-l-full blur-xs" />
             </div>
@@ -45,33 +45,33 @@ export function Spaceship({ position, powered, x }: SpaceshipProps) {
             <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/40 rounded-xl" />
 
             {/* Cockpit window */}
-            <div className="absolute top-1/4 left-1/2 w-12 h-12 -translate-x-1/2 -translate-y-1/2">
-              <div className="w-full h-full bg-gradient-to-br from-cyan-300 via-cyan-400 to-cyan-600 rounded-full border-4 border-blue-800/50">
-                <div className="absolute inset-2 bg-gradient-to-tl from-transparent via-white/50 to-white/80 rounded-full" />
+            <div className="absolute top-1/4 left-1/2 w-8 h-8 -translate-x-1/2 -translate-y-1/2">
+              <div className="w-full h-full bg-gradient-to-br from-cyan-300 via-cyan-400 to-cyan-600 rounded-full border-2 border-blue-800/50">
+                <div className="absolute inset-1 bg-gradient-to-tl from-transparent via-white/50 to-white/80 rounded-full" />
               </div>
             </div>
 
             {/* Wing structures */}
-            <div className="absolute top-0 right-0 w-6 h-16 bg-gradient-to-r from-blue-500 to-blue-700 rounded-tr-xl transform -skew-y-12" />
-            <div className="absolute bottom-0 right-0 w-6 h-16 bg-gradient-to-r from-blue-500 to-blue-700 rounded-br-xl transform skew-y-12" />
+            <div className="absolute top-0 right-0 w-4 h-12 bg-gradient-to-r from-blue-500 to-blue-700 rounded-tr-xl transform -skew-y-12" />
+            <div className="absolute bottom-0 right-0 w-4 h-12 bg-gradient-to-r from-blue-500 to-blue-700 rounded-br-xl transform skew-y-12" />
 
             {/* Engine nozzles */}
-            <div className="absolute top-1/4 left-2 w-4 h-4 bg-gradient-to-r from-slate-600 to-slate-800 rounded-full ring-2 ring-blue-400/50" />
-            <div className="absolute bottom-1/4 left-2 w-4 h-4 bg-gradient-to-r from-slate-600 to-slate-800 rounded-full ring-2 ring-blue-400/50" />
+            <div className="absolute top-1/4 left-2 w-3 h-3 bg-gradient-to-r from-slate-600 to-slate-800 rounded-full ring-1 ring-blue-400/50" />
+            <div className="absolute bottom-1/4 left-2 w-3 h-3 bg-gradient-to-r from-slate-600 to-slate-800 rounded-full ring-1 ring-blue-400/50" />
           </div>
 
           {/* Side fins */}
-          <div className="absolute -top-3 left-1/2 w-12 h-6 -translate-x-1/2 bg-gradient-to-t from-blue-500 to-blue-700 rounded-t-lg transform -rotate-12">
+          <div className="absolute -top-2 left-1/2 w-8 h-4 -translate-x-1/2 bg-gradient-to-t from-blue-500 to-blue-700 rounded-t-lg transform -rotate-12">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
           </div>
-          <div className="absolute -bottom-3 left-1/2 w-12 h-6 -translate-x-1/2 bg-gradient-to-b from-blue-500 to-blue-700 rounded-b-lg transform rotate-12">
+          <div className="absolute -bottom-2 left-1/2 w-8 h-4 -translate-x-1/2 bg-gradient-to-b from-blue-500 to-blue-700 rounded-b-lg transform rotate-12">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
           </div>
         </div>
 
         {/* Dynamic lighting effects */}
-        <div className="absolute inset-y-4 right-6 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full blur-sm" />
-        <div className="absolute inset-y-4 left-6 w-1/4 bg-gradient-to-l from-transparent via-blue-400/30 to-transparent rounded-full blur-sm" />
+        <div className="absolute inset-y-2 right-4 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full blur-sm" />
+        <div className="absolute inset-y-2 left-4 w-1/4 bg-gradient-to-l from-transparent via-blue-400/30 to-transparent rounded-full blur-sm" />
       </div>
     </motion.div>
   );
