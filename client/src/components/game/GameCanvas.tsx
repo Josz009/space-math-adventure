@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Spaceship } from './Spaceship';
 import { Asteroid } from './Asteroid';
+import React from 'react';
 
 interface GameCanvasProps {
   children?: React.ReactNode;
@@ -41,7 +42,7 @@ export function GameCanvas({ children, onAnswer }: GameCanvasProps) {
     }, 2000);
 
     return () => clearInterval(interval);
-  }, [asteroids]);
+  }, [asteroids.length]); // Changed dependency to asteroids.length to avoid unnecessary re-renders
 
   // Clean up asteroids that have moved off screen
   useEffect(() => {
