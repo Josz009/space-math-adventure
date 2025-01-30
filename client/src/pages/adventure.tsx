@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { GameCanvas } from '@/components/game/GameCanvas';
 import { MathProblem } from '@/components/game/MathProblem';
 import { RewardBadge } from '@/components/game/RewardBadge';
@@ -9,11 +9,15 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'wouter';
 
+type GamePhase = 'QUESTIONS' | 'DODGING' | 'NEW_WORLD';
+
 interface GameState {
   level: number;
   score: number;
   topic: string | null;
   grade: number | null;
+  correctAnswers: number;
+  totalCorrectAnswers: number;
 }
 
 export default function Adventure() {
@@ -22,8 +26,11 @@ export default function Adventure() {
     level: 1,
     score: 0,
     topic: null,
-    grade: null
+    grade: null,
+    correctAnswers: 0,
+    totalCorrectAnswers: 0
   });
+  const [gamePhase, setGamePhase] = useState<GamePhase>('QUESTIONS');
   const [problem, setProblem] = useState(generateMathProblem(1));
   const [performance, setPerformance] = useState({ correct: 0, total: 0 });
   const [showReward, setShowReward] = useState(false);
@@ -31,32 +38,69 @@ export default function Adventure() {
 
   useEffect(() => {
     const difficulty = calculateDifficulty(performance);
-    if (gameState.topic) {
-      setProblem(generateMathProblem(difficulty, gameState.topic));
+    if (gameState.topic && gamePhase === 'QUESTIONS') {
+      setProblem(generateMathProblem(difficulty, gameState.topic as any));
     }
-  }, [performance, gameState.topic]);
+  }, [performance, gameState.topic, gamePhase]);
 
   const handleTopicSelect = (topic: string, grade: number) => {
     setGameState(prev => ({ ...prev, topic, grade }));
     setShowTopicSelector(false);
-    // Generate first problem with the selected topic
-    setProblem(generateMathProblem(1, topic));
+    setProblem(generateMathProblem(1, topic as any));
   };
 
-  const handleAnswer = (correct: boolean) => {
+  const handleAnswer = useCallback((correct: boolean) => {
     setPerformance(prev => ({
       correct: prev.correct + (correct ? 1 : 0),
       total: prev.total + 1
     }));
 
     if (correct) {
-      setGameState(prev => ({ ...prev, score: prev.score + 100 }));
-      if (gameState.score > 0 && gameState.score % 500 === 0) {
-        setGameState(prev => ({ ...prev, level: prev.level + 1 }));
-        setShowReward(true);
-      }
+      setGameState(prev => {
+        const newCorrectAnswers = prev.correctAnswers + 1;
+        const newTotalCorrectAnswers = prev.totalCorrectAnswers + 1;
+        const newScore = prev.score + 100;
+
+        // After 5 correct answers, switch to dodging phase
+        if (newCorrectAnswers === 5) {
+          setTimeout(() => setGamePhase('DODGING'), 1000);
+        }
+
+        // After 15 total correct answers, show new world
+        if (newTotalCorrectAnswers === 15) {
+          setTimeout(() => {
+            setGamePhase('NEW_WORLD');
+            setShowReward(true);
+          }, 1000);
+        }
+
+        return {
+          ...prev,
+          score: newScore,
+          correctAnswers: newCorrectAnswers % 5, // Reset after 5
+          totalCorrectAnswers: newTotalCorrectAnswers
+        };
+      });
     }
-  };
+  }, []);
+
+  const handleDodgeComplete = useCallback((survived: boolean) => {
+    if (survived) {
+      setGamePhase('QUESTIONS');
+      setGameState(prev => ({
+        ...prev,
+        level: prev.level + 1,
+        score: prev.score + 500
+      }));
+    } else {
+      // If hit by asteroid, reset current progress but keep total
+      setGameState(prev => ({
+        ...prev,
+        correctAnswers: 0
+      }));
+      setGamePhase('QUESTIONS');
+    }
+  }, []);
 
   if (!gameState.topic || !gameState.grade) {
     return (
@@ -89,22 +133,36 @@ export default function Adventure() {
             <div className="bg-white rounded-lg px-4 py-2">
               Score: {gameState.score}
             </div>
+            {gamePhase === 'QUESTIONS' && (
+              <div className="bg-white rounded-lg px-4 py-2">
+                Progress: {gameState.correctAnswers}/5
+              </div>
+            )}
           </div>
         </div>
 
         <div className="mb-4">
-          <Progress value={(performance.correct / Math.max(1, performance.total)) * 100} />
+          <Progress 
+            value={(gameState.correctAnswers / 5) * 100} 
+            className="h-2 bg-purple-200"
+          />
         </div>
 
-        <GameCanvas onAnswer={handleAnswer}>
-          <MathProblem 
-            problem={problem}
-            onAnswer={handleAnswer}
-          />
+        <GameCanvas 
+          onAnswer={handleAnswer} 
+          gamePhase={gamePhase}
+          onDodgeComplete={handleDodgeComplete}
+        >
+          {gamePhase === 'QUESTIONS' && (
+            <MathProblem 
+              problem={problem}
+              onAnswer={handleAnswer}
+            />
+          )}
         </GameCanvas>
 
         <AnimatePresence>
-          {showReward && (
+          {showReward && gamePhase === 'NEW_WORLD' && (
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -112,17 +170,20 @@ export default function Adventure() {
               className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
             >
               <div className="bg-white p-8 rounded-lg text-center">
-                <h2 className="text-2xl font-bold mb-4">Level Up!</h2>
+                <h2 className="text-2xl font-bold mb-4">New World Unlocked! 🌟</h2>
                 <RewardBadge
                   type="level"
-                  description={`Reached Level ${gameState.level}`}
+                  description={`Completed World ${gameState.level}`}
                   unlocked
                 />
                 <Button
                   className="mt-4"
-                  onClick={() => setShowReward(false)}
+                  onClick={() => {
+                    setShowReward(false);
+                    setGamePhase('QUESTIONS');
+                  }}
                 >
-                  Continue
+                  Continue to Next World
                 </Button>
               </div>
             </motion.div>

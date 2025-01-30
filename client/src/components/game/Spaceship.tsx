@@ -4,18 +4,21 @@ import { Rocket } from 'lucide-react';
 interface SpaceshipProps {
   position: number;
   powered?: boolean;
+  x?: number;
 }
 
-export function Spaceship({ position, powered }: SpaceshipProps) {
+export function Spaceship({ position, powered, x }: SpaceshipProps) {
   return (
     <motion.div
-      className="absolute left-8 z-20"
+      className="absolute z-20"
       animate={{
         y: position,
+        x: x ?? 32, // Default to 32px from left if not in dodge mode
         scale: powered ? 1.1 : 1,
       }}
       transition={{
         y: { type: "spring", stiffness: 100, damping: 10 },
+        x: { type: "spring", stiffness: 100, damping: 10 },
         scale: { duration: 0.2 }
       }}
     >
