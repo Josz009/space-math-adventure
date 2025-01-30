@@ -4,6 +4,7 @@ import { MathProblem } from '@/components/game/MathProblem';
 import { RewardBadge } from '@/components/game/RewardBadge';
 import { TopicSelector } from '@/components/game/TopicSelector';
 import { generateMathProblem, calculateDifficulty } from '@/lib/math';
+import { SPACE_ACHIEVEMENTS, checkAchievementUnlock, type Achievement } from '@/lib/achievements';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,8 @@ interface GameState {
   correctAnswers: number;
   totalCorrectAnswers: number;
   wrongAnswers: number;
+  consecutiveCorrect: number;
+  problemsSolved: { [key: string]: number };
 }
 
 export default function Adventure() {
@@ -30,7 +33,9 @@ export default function Adventure() {
     grade: null,
     correctAnswers: 0,
     totalCorrectAnswers: 0,
-    wrongAnswers: 0
+    wrongAnswers: 0,
+    consecutiveCorrect: 0,
+    problemsSolved: {}
   });
   const [gamePhase, setGamePhase] = useState<GamePhase>('QUESTIONS');
   const [problem, setProblem] = useState(generateMathProblem(1));
@@ -38,16 +43,35 @@ export default function Adventure() {
   const [showReward, setShowReward] = useState(false);
   const [showTopicSelector, setShowTopicSelector] = useState(true);
   const [showInstructions, setShowInstructions] = useState(false);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<Achievement[]>([]);
+  const [showAchievement, setShowAchievement] = useState<Achievement | null>(null);
 
+  // Check for achievements
   useEffect(() => {
-    const difficulty = calculateDifficulty(performance);
-    if (gameState.topic && gamePhase === 'QUESTIONS') {
-      setProblem(generateMathProblem(difficulty, gameState.topic as any));
-    }
-  }, [performance, gameState.topic, gamePhase]);
+    const stats = {
+      problemsSolved: Object.values(gameState.problemsSolved).reduce((a, b) => a + b, 0),
+      consecutiveCorrect: gameState.consecutiveCorrect,
+      score: gameState.score,
+      topicStats: gameState.problemsSolved,
+    };
+
+    SPACE_ACHIEVEMENTS.forEach(achievement => {
+      if (!unlockedAchievements.find(a => a.id === achievement.id) && 
+          checkAchievementUnlock(achievement, stats)) {
+        setUnlockedAchievements(prev => [...prev, { ...achievement, unlockedAt: new Date().toISOString() }]);
+        setShowAchievement(achievement);
+        setTimeout(() => setShowAchievement(null), 3000);
+      }
+    });
+  }, [gameState, unlockedAchievements]);
 
   const handleTopicSelect = (topic: string, grade: number) => {
-    setGameState(prev => ({ ...prev, topic, grade }));
+    setGameState(prev => ({ 
+      ...prev, 
+      topic, 
+      grade,
+      problemsSolved: { ...prev.problemsSolved, [topic]: 0 }
+    }));
     setShowTopicSelector(false);
     setProblem(generateMathProblem(1, topic as any));
     setShowInstructions(true);
@@ -64,6 +88,12 @@ export default function Adventure() {
         const newCorrectAnswers = prev.correctAnswers + 1;
         const newTotalCorrectAnswers = prev.totalCorrectAnswers + 1;
         const newScore = prev.score + 100;
+        const newConsecutiveCorrect = prev.consecutiveCorrect + 1;
+        const topic = prev.topic as string;
+        const newProblemsSolved = {
+          ...prev.problemsSolved,
+          [topic]: (prev.problemsSolved[topic] || 0) + 1
+        };
 
         // After 5 correct answers, switch to dodging phase
         if (newCorrectAnswers === 5) {
@@ -85,13 +115,16 @@ export default function Adventure() {
           ...prev,
           score: newScore,
           correctAnswers: newCorrectAnswers % 5, // Reset after 5
-          totalCorrectAnswers: newTotalCorrectAnswers
+          totalCorrectAnswers: newTotalCorrectAnswers,
+          consecutiveCorrect: newConsecutiveCorrect,
+          problemsSolved: newProblemsSolved
         };
       });
     } else {
       setGameState(prev => ({
         ...prev,
-        wrongAnswers: prev.wrongAnswers + 1
+        wrongAnswers: prev.wrongAnswers + 1,
+        consecutiveCorrect: 0 // Reset consecutive correct answers
       }));
     }
   }, []);
@@ -241,6 +274,16 @@ export default function Adventure() {
                   Continue to Next World
                 </Button>
               </div>
+            </motion.div>
+          )}
+          {showAchievement && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="fixed top-8 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-4 rounded-lg shadow-xl"
+            >
+              <p>Achievement Unlocked: {showAchievement.name}</p>
             </motion.div>
           )}
         </AnimatePresence>

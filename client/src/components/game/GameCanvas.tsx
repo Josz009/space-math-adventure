@@ -13,14 +13,7 @@ interface GameCanvasProps {
   speed: number;
 }
 
-export function GameCanvas({
-  children,
-  onAnswer,
-  gamePhase,
-  onDodgeComplete,
-  wrongAnswers,
-  speed
-}: GameCanvasProps) {
+export function GameCanvas({ children, onAnswer, gamePhase, onDodgeComplete, wrongAnswers, speed }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [spaceshipPosition, setSpaceshipPosition] = useState(300);
   const [spaceshipX, setSpaceshipX] = useState(100);
@@ -82,43 +75,49 @@ export function GameCanvas({
   }, [gamePhase, speed, isGameOver]);
 
   // Handle collision detection during dodge phase
-  useEffect(() => {
-    if (gamePhase !== 'DODGING' || isGameOver) return;
+  const checkCollisions = useCallback(() => {
+    // Define rocket hitbox with tighter bounds
+    const rocketHitbox = {
+      x: spaceshipX + 10, // Center the hitbox
+      y: spaceshipPosition + 8, // Account for nose cone
+      width: 20,  // Tighter width
+      height: 32  // Include nose cone and body
+    };
 
-    const checkCollisions = () => {
-      // Define rocket hitbox
-      const rocketHitbox = {
-        x: spaceshipX + 20, // Align with rocket's center
-        y: spaceshipPosition + 16, // Align with rocket's center
-        width: 20, // Match rocket's visual width
-        height: 32 // Match rocket's visual height
+    asteroids.forEach(asteroid => {
+      // Create a circular hitbox for asteroid
+      const asteroidCenter = {
+        x: asteroid.position.x + asteroid.size / 2,
+        y: asteroid.position.y + asteroid.size / 2
       };
+      const asteroidRadius = asteroid.size * 0.4; // Slightly smaller than visual size
 
-      for (const asteroid of asteroids) {
-        const asteroidCenter = {
-          x: asteroid.position.x + asteroid.size / 2,
-          y: asteroid.position.y + asteroid.size / 2
-        };
+      // Check if rocket corners are inside asteroid circle
+      const corners = [
+        { x: rocketHitbox.x, y: rocketHitbox.y }, // Top left
+        { x: rocketHitbox.x + rocketHitbox.width, y: rocketHitbox.y }, // Top right
+        { x: rocketHitbox.x, y: rocketHitbox.y + rocketHitbox.height }, // Bottom left
+        { x: rocketHitbox.x + rocketHitbox.width, y: rocketHitbox.y + rocketHitbox.height } // Bottom right
+      ];
 
-        // Use rectangular collision detection for more accurate hits
-        const collision = !(
-          rocketHitbox.x > asteroidCenter.x + asteroid.size / 2 || // Too far right
-          rocketHitbox.x + rocketHitbox.width < asteroidCenter.x - asteroid.size / 2 || // Too far left
-          rocketHitbox.y > asteroidCenter.y + asteroid.size / 2 || // Too far down
-          rocketHitbox.y + rocketHitbox.height < asteroidCenter.y - asteroid.size / 2 // Too far up
-        );
+      // Check each corner for collision
+      for (const corner of corners) {
+        const dx = corner.x - asteroidCenter.x;
+        const dy = corner.y - asteroidCenter.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (collision) {
+        if (distance < asteroidRadius) {
           // Play explosion sound
           const explosionSound = new Audio('/sounds/explosion.mp3');
           explosionSound.volume = 0.5;
           explosionSound.play();
 
-          // Set explosion at rocket's center
+          // Set explosion at collision point
           setExplosionPosition({
-            x: rocketHitbox.x + rocketHitbox.width / 2,
-            y: rocketHitbox.y + rocketHitbox.height / 2
+            x: corner.x,
+            y: corner.y
           });
+
           setIsGameOver(true);
           setShowGameOver(true);
 
@@ -132,12 +131,15 @@ export function GameCanvas({
           return;
         }
       }
-    };
+    });
+  }, [asteroids, spaceshipPosition, spaceshipX, onDodgeComplete]);
 
-    // Check collisions more frequently for better detection
-    const interval = setInterval(checkCollisions, 16); // ~60fps
+  useEffect(() => {
+    if (gamePhase !== 'DODGING' || isGameOver) return;
+
+    const interval = setInterval(checkCollisions, 16); // 60fps checks
     return () => clearInterval(interval);
-  }, [gamePhase, asteroids, spaceshipPosition, spaceshipX, onDodgeComplete, isGameOver]);
+  }, [gamePhase, isGameOver, checkCollisions]);
 
   // Add timer for dodge phase
   useEffect(() => {
