@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,15 +29,31 @@ export default function Puzzle() {
   const [showTopicSelector, setShowTopicSelector] = useState(true);
   const [showCelebration, setShowCelebration] = useState(false);
 
-  const handleTopicSelect = (topic: string, grade: number) => {
+  const generateNewPuzzle = useCallback((topic: string, grade: number) => {
+    try {
+      const newPuzzle = generatePuzzle(topic, grade);
+      setCurrentPuzzle(newPuzzle);
+    } catch (error) {
+      console.error('Error generating puzzle:', error);
+      // Fallback to a simple addition puzzle if generation fails
+      setCurrentPuzzle({
+        id: Date.now().toString(),
+        type: topic,
+        question: 'What is 2 + 2?',
+        answer: '4',
+        hint: 'Add the numbers',
+        image: '➕'
+      });
+    }
+  }, []);
+
+  const handleTopicSelect = useCallback((topic: string, grade: number) => {
     setGameState(prev => ({ ...prev, topic, grade }));
     setShowTopicSelector(false);
-    // Generate first puzzle
-    const newPuzzle = generatePuzzle(topic, grade);
-    setCurrentPuzzle(newPuzzle);
-  };
+    generateNewPuzzle(topic, grade);
+  }, [generateNewPuzzle]);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     if (!currentPuzzle || !gameState.topic || !gameState.grade) return;
 
     const currentAnswer = answer.trim();
@@ -61,23 +77,22 @@ export default function Puzzle() {
       // Generate next puzzle after a delay
       setTimeout(() => {
         setShowCelebration(false);
-        const newPuzzle = generatePuzzle(gameState.topic!, gameState.grade!);
-        setCurrentPuzzle(newPuzzle);
+        generateNewPuzzle(gameState.topic!, gameState.grade!);
       }, 1000);
     } else {
       setAnswer('');
     }
-  };
+  }, [answer, currentPuzzle, gameState.topic, gameState.grade, generateNewPuzzle]);
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSubmit();
     }
-  };
+  }, [handleSubmit]);
 
   if (!gameState.topic || !gameState.grade) {
     return (
-      <AnimatePresence>
+      <AnimatePresence mode="sync">
         {showTopicSelector && (
           <TopicSelector
             onSelect={handleTopicSelect}
@@ -158,7 +173,7 @@ export default function Puzzle() {
                 </Button>
               </div>
 
-              <AnimatePresence>
+              <AnimatePresence mode="sync">
                 {showHint && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
@@ -176,7 +191,7 @@ export default function Puzzle() {
           </CardContent>
         </Card>
 
-        <AnimatePresence>
+        <AnimatePresence mode="sync">
           {showCelebration && (
             <motion.div
               initial={{ scale: 0 }}
