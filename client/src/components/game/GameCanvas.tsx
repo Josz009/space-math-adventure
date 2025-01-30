@@ -169,7 +169,7 @@ export function GameCanvas({
       setAsteroids(prev => {
         const remaining = prev.filter(asteroid => asteroid.position.x > -200);
         // If in dodge phase and all asteroids are cleared, complete the phase
-        if (gamePhase === 'DODGING' && remaining.length === 0 && prev.length > 0) {
+        if (gamePhase === 'DODGING' && remaining.length === 0 && prev.length > 0 && !isGameOver) {
           // Reset ship position and trigger completion
           setSpaceshipX(100);
           setSpaceshipPosition(300);
@@ -180,7 +180,7 @@ export function GameCanvas({
     }, 1000);
 
     return () => clearInterval(cleanup);
-  }, [gamePhase, onDodgeComplete]);
+  }, [gamePhase, onDodgeComplete, isGameOver]);
 
   // When game phase changes to DODGING, spawn initial asteroids
   useEffect(() => {
