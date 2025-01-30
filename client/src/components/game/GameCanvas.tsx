@@ -1,5 +1,7 @@
-import { useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Spaceship } from './Spaceship';
+import { Asteroid } from './Asteroid';
 
 interface GameCanvasProps {
   children?: React.ReactNode;
@@ -8,7 +10,49 @@ interface GameCanvasProps {
 
 export function GameCanvas({ children, onAnswer }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [spaceshipPosition, setSpaceshipPosition] = useState(300);
+  const [isPowered, setIsPowered] = useState(false);
+  const [asteroids, setAsteroids] = useState<Array<{ id: number; size: number; position: { x: number; y: number }; rotation: number }>>([]);
 
+  // Handle correct/incorrect answers
+  const handleAnswer = (correct: boolean) => {
+    if (correct) {
+      setIsPowered(true);
+      setSpaceshipPosition(prev => Math.max(100, prev - 50));
+      setTimeout(() => setIsPowered(false), 1000);
+    }
+    onAnswer(correct);
+  };
+
+  // Generate new asteroids periodically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (asteroids.length < 5) {
+        setAsteroids(prev => [...prev, {
+          id: Date.now(),
+          size: Math.random() * 30 + 20,
+          position: { 
+            x: window.innerWidth,
+            y: Math.random() * 400 + 100
+          },
+          rotation: Math.random() * 360
+        }]);
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [asteroids]);
+
+  // Clean up asteroids that have moved off screen
+  useEffect(() => {
+    const cleanup = setInterval(() => {
+      setAsteroids(prev => prev.filter(asteroid => asteroid.position.x > -200));
+    }, 1000);
+
+    return () => clearInterval(cleanup);
+  }, []);
+
+  // Stars background effect
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -79,6 +123,23 @@ export function GameCanvas({ children, onAnswer }: GameCanvasProps) {
         style={{ width: '100%', height: '100%' }}
       />
       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10" />
+
+      {/* Spaceship */}
+      <Spaceship position={spaceshipPosition} powered={isPowered} />
+
+      {/* Asteroids */}
+      <AnimatePresence>
+        {asteroids.map(asteroid => (
+          <Asteroid
+            key={asteroid.id}
+            size={asteroid.size}
+            position={asteroid.position}
+            rotation={asteroid.rotation}
+          />
+        ))}
+      </AnimatePresence>
+
+      {/* Math Problem UI */}
       <motion.div 
         className="relative z-10 h-full flex items-center justify-center p-8"
         initial={{ scale: 0.9, opacity: 0 }}
@@ -89,7 +150,7 @@ export function GameCanvas({ children, onAnswer }: GameCanvasProps) {
           damping: 20
         }}
       >
-        {children}
+        {children && React.cloneElement(children as React.ReactElement, { onAnswer: handleAnswer })}
       </motion.div>
     </div>
   );
