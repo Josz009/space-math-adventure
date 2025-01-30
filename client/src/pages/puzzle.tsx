@@ -52,17 +52,6 @@ export default function Puzzle() {
     setShowTopicSelector(false);
   };
 
-  const moveToNextPuzzle = () => {
-    if (gameState.currentPuzzle < PUZZLES.length - 1) {
-      setGameState(prev => ({
-        ...prev,
-        currentPuzzle: prev.currentPuzzle + 1
-      }));
-      setAnswer('');
-      setShowHint(false);
-    }
-  };
-
   const handleSubmit = async () => {
     if (isTransitioning) return;
 
@@ -76,14 +65,21 @@ export default function Puzzle() {
       // Update score immediately
       setGameState(prev => ({
         ...prev,
-        score: prev.score + 100
+        score: prev.score + 100,
       }));
 
       // Wait for celebration animation
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Move to next puzzle
-      moveToNextPuzzle();
+      if (gameState.currentPuzzle < PUZZLES.length - 1) {
+        setGameState(prev => ({
+          ...prev,
+          currentPuzzle: prev.currentPuzzle + 1
+        }));
+        setAnswer('');
+        setShowHint(false);
+      }
 
       // Hide celebration and reset transition state
       setTimeout(() => {
@@ -100,16 +96,6 @@ export default function Puzzle() {
       handleSubmit();
     }
   };
-
-  // Reset isTransitioning if it gets stuck
-  useEffect(() => {
-    if (isTransitioning) {
-      const timeout = setTimeout(() => {
-        setIsTransitioning(false);
-      }, 2000);
-      return () => clearTimeout(timeout);
-    }
-  }, [isTransitioning]);
 
   if (!gameState.topic || !gameState.grade) {
     return (
