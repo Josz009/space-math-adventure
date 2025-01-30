@@ -52,18 +52,36 @@ export default function Puzzle() {
   };
 
   const handleSubmit = () => {
-    if (answer === PUZZLES[gameState.currentPuzzle].answer) {
+    const currentAnswer = answer.trim();
+    const correctAnswer = PUZZLES[gameState.currentPuzzle].answer;
+
+    if (currentAnswer === correctAnswer) {
       setShowCelebration(true);
-      setGameState(prev => ({ ...prev, score: prev.score + 100 }));
+      setGameState(prev => ({
+        ...prev,
+        score: prev.score + 100,
+        currentPuzzle: prev.currentPuzzle < PUZZLES.length - 1 ? prev.currentPuzzle + 1 : prev.currentPuzzle
+      }));
+
+      // Reset states for next puzzle
+      setAnswer('');
+      setShowHint(false);
+
+      // Hide celebration after delay
       setTimeout(() => {
         setShowCelebration(false);
-        if (gameState.currentPuzzle < PUZZLES.length - 1) {
-          setGameState(prev => ({ ...prev, currentPuzzle: prev.currentPuzzle + 1 }));
-        }
       }, 2000);
+    } else {
+      // Wrong answer handling
+      setAnswer('');
+      setShowHint(false);
     }
-    setAnswer('');
-    setShowHint(false);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
+    }
   };
 
   if (!gameState.topic || !gameState.grade) {
@@ -119,6 +137,7 @@ export default function Puzzle() {
                 type="text"
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
+                onKeyPress={handleKeyPress}
                 placeholder="Your answer..."
                 className="text-lg"
               />
