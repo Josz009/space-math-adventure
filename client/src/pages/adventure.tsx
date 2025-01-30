@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'wouter';
+import { TutorialAnimation } from '@/components/game/TutorialAnimation';
 
 type GamePhase = 'QUESTIONS' | 'DODGING' | 'NEW_WORLD';
 
@@ -45,6 +46,7 @@ export default function Adventure() {
   const [showInstructions, setShowInstructions] = useState(false);
   const [unlockedAchievements, setUnlockedAchievements] = useState<Achievement[]>([]);
   const [showAchievement, setShowAchievement] = useState<Achievement | null>(null);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   // Check for achievements
   useEffect(() => {
@@ -81,7 +83,12 @@ export default function Adventure() {
       problemsSolved: { ...prev.problemsSolved, [topic]: 0 }
     }));
     setShowTopicSelector(false);
-    setProblem(generateMathProblem(1, topic as any));
+    setShowTutorial(true); // Show tutorial when topic is selected
+  };
+
+  const handleTutorialComplete = () => {
+    setShowTutorial(false);
+    setProblem(generateMathProblem(1, gameState.topic as any));
     setShowInstructions(true);
   };
 
@@ -188,6 +195,24 @@ export default function Adventure() {
           />
         )}
       </AnimatePresence>
+    );
+  }
+
+  if (showTutorial) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-purple-900 to-blue-900 p-8">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="max-w-6xl mx-auto"
+        >
+          <TutorialAnimation
+            topic={gameState.topic}
+            difficulty={calculateDifficulty(performance)}
+            onComplete={handleTutorialComplete}
+          />
+        </motion.div>
+      </div>
     );
   }
 
