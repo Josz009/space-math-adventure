@@ -86,9 +86,9 @@ export function GameCanvas({
     if (gamePhase !== 'DODGING' || isGameOver) return;
 
     const checkCollisions = () => {
-      const shipRadius = 20;
+      const shipRadius = 30; // Increased collision radius for better detection
       const shipBounds = {
-        x: spaceshipX,
+        x: spaceshipX + 40, // Adjusted to match visual center of ship
         y: spaceshipPosition,
         radius: shipRadius
       };
@@ -107,6 +107,7 @@ export function GameCanvas({
         if (distance < shipBounds.radius + asteroidBounds.radius) {
           // Play explosion sound
           const explosionSound = new Audio('/sounds/explosion.mp3');
+          explosionSound.volume = 0.5;
           explosionSound.play();
 
           setExplosionPosition({ x: shipBounds.x, y: shipBounds.y });
@@ -118,13 +119,14 @@ export function GameCanvas({
             onDodgeComplete(false);
             setShowGameOver(false);
             setExplosionPosition(null);
+            setIsGameOver(false); // Reset game over state
           }, 2000);
           return;
         }
       }
     };
 
-    const interval = setInterval(checkCollisions, 100);
+    const interval = setInterval(checkCollisions, 50); // Increased check frequency
     return () => clearInterval(interval);
   }, [gamePhase, asteroids, spaceshipPosition, spaceshipX, onDodgeComplete, isGameOver]);
 
@@ -163,21 +165,22 @@ export function GameCanvas({
     return () => clearInterval(interval);
   }, [asteroids.length, gamePhase, wrongAnswers, speed, isGameOver]);
 
-  // Clean up asteroids that have moved off screen
+  // Handle asteroids cleanup and phase transition
   useEffect(() => {
     const cleanup = setInterval(() => {
       setAsteroids(prev => {
         const remaining = prev.filter(asteroid => asteroid.position.x > -200);
-        // If in dodge phase and all asteroids are cleared, complete the phase
+        // If in dodge phase and all asteroids have passed
         if (gamePhase === 'DODGING' && remaining.length === 0 && prev.length > 0 && !isGameOver) {
-          // Reset ship position and trigger completion
-          setSpaceshipX(100);
-          setSpaceshipPosition(300);
-          onDodgeComplete(true);
+          setTimeout(() => {
+            setSpaceshipX(100);
+            setSpaceshipPosition(300);
+            onDodgeComplete(true);
+          }, 1000); // Short delay before transition
         }
         return remaining;
       });
-    }, 1000);
+    }, 100); // More frequent checks
 
     return () => clearInterval(cleanup);
   }, [gamePhase, onDodgeComplete, isGameOver]);
