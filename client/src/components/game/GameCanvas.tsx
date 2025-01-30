@@ -33,13 +33,33 @@ export function GameCanvas({
     speed: number;
   }>>([]);
   const [isGameOver, setIsGameOver] = useState(false);
+  const [explosionPosition, setExplosionPosition] = useState<{x: number, y: number} | null>(null);
+  const [showGameOver, setShowGameOver] = useState(false);
+
+  // Sound effects
+  useEffect(() => {
+    const createAudioElement = (src: string) => {
+      const audio = new Audio(src);
+      audio.volume = 0.5;
+      return audio;
+    };
+
+    const explosionSound = createAudioElement('/sounds/explosion.mp3');
+    const engineSound = createAudioElement('/sounds/engine.mp3');
+    engineSound.loop = true;
+
+    return () => {
+      explosionSound.pause();
+      engineSound.pause();
+    };
+  }, []);
 
   // Handle keyboard controls during dodge phase
   useEffect(() => {
-    if (gamePhase !== 'DODGING') return;
+    if (gamePhase !== 'DODGING' || isGameOver) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      const moveAmount = 30 * speed; // Increased movement speed based on performance
+      const moveAmount = 30 * speed;
 
       switch (e.key) {
         case 'ArrowUp':
@@ -59,11 +79,11 @@ export function GameCanvas({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [gamePhase, speed]);
+  }, [gamePhase, speed, isGameOver]);
 
   // Handle collision detection during dodge phase
   useEffect(() => {
-    if (gamePhase !== 'DODGING') return;
+    if (gamePhase !== 'DODGING' || isGameOver) return;
 
     const checkCollisions = () => {
       const shipRadius = 20;
@@ -85,8 +105,20 @@ export function GameCanvas({
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance < shipBounds.radius + asteroidBounds.radius) {
+          // Play explosion sound
+          const explosionSound = new Audio('/sounds/explosion.mp3');
+          explosionSound.play();
+
+          setExplosionPosition({ x: shipBounds.x, y: shipBounds.y });
           setIsGameOver(true);
-          onDodgeComplete(false);
+          setShowGameOver(true);
+
+          // Delay the dodge complete callback to show explosion animation
+          setTimeout(() => {
+            onDodgeComplete(false);
+            setShowGameOver(false);
+            setExplosionPosition(null);
+          }, 2000);
           return;
         }
       }
@@ -94,7 +126,7 @@ export function GameCanvas({
 
     const interval = setInterval(checkCollisions, 100);
     return () => clearInterval(interval);
-  }, [gamePhase, asteroids, spaceshipPosition, spaceshipX, onDodgeComplete]);
+  }, [gamePhase, asteroids, spaceshipPosition, spaceshipX, onDodgeComplete, isGameOver]);
 
   // Handle correct/incorrect answers during question phase
   const handleAnswer = (correct: boolean) => {
@@ -108,12 +140,12 @@ export function GameCanvas({
 
   // Generate new asteroids periodically during dodge phase
   useEffect(() => {
-    if (gamePhase !== 'DODGING') return;
+    if (gamePhase !== 'DODGING' || isGameOver) return;
 
     const interval = setInterval(() => {
       if (asteroids.length < 5) {
         const baseSize = 20 + Math.random() * 30;
-        const sizeIncrease = wrongAnswers * 5; // Asteroids get bigger with wrong answers
+        const sizeIncrease = wrongAnswers * 5; 
 
         setAsteroids(prev => [...prev, {
           id: Date.now(),
@@ -123,13 +155,13 @@ export function GameCanvas({
             y: Math.random() * 400 + 100
           },
           rotation: Math.random() * 360,
-          speed: speed * (1 + Math.random() * 0.5) // Asteroids move faster with better performance
+          speed: speed * (1 + Math.random() * 0.5) 
         }]);
       }
     }, gamePhase === 'DODGING' ? 1000 : 2000);
 
     return () => clearInterval(interval);
-  }, [asteroids.length, gamePhase, wrongAnswers, speed]);
+  }, [asteroids.length, gamePhase, wrongAnswers, speed, isGameOver]);
 
   // Clean up asteroids that have moved off screen
   useEffect(() => {
@@ -197,7 +229,7 @@ export function GameCanvas({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         size: Math.random() * 2,
-        speed: (Math.random() * 0.5 + 0.1) * speed // Stars move faster with better performance
+        speed: (Math.random() * 0.5 + 0.1) * speed 
       });
     }
 
@@ -251,11 +283,57 @@ export function GameCanvas({
       )}
 
       {/* Spaceship */}
-      <Spaceship
-        position={spaceshipPosition}
-        powered={isPowered}
-        x={gamePhase === 'DODGING' ? spaceshipX : undefined}
-      />
+      <AnimatePresence>
+        {!isGameOver && (
+          <Spaceship
+            position={spaceshipPosition}
+            powered={isPowered}
+            x={gamePhase === 'DODGING' ? spaceshipX : undefined}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Explosion Effect */}
+      <AnimatePresence>
+        {explosionPosition && (
+          <motion.div
+            initial={{ scale: 0, opacity: 1 }}
+            animate={{ scale: [1, 2], opacity: [1, 0] }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute"
+            style={{
+              left: explosionPosition.x - 50,
+              top: explosionPosition.y - 50,
+              width: 100,
+              height: 100,
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
+            <div className="w-full h-full relative">
+              <div className="absolute inset-0 bg-orange-500 rounded-full opacity-80" />
+              <div className="absolute inset-2 bg-yellow-500 rounded-full opacity-90" />
+              <div className="absolute inset-4 bg-white rounded-full" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Game Over Message */}
+      <AnimatePresence>
+        {showGameOver && (
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            <div className="bg-black/80 text-white px-8 py-4 rounded-lg text-2xl font-bold">
+              Game Over! Spaceship Destroyed
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Asteroids */}
       <AnimatePresence>
@@ -265,6 +343,7 @@ export function GameCanvas({
             size={asteroid.size}
             position={asteroid.position}
             rotation={asteroid.rotation}
+            speed={asteroid.speed}
           />
         ))}
       </AnimatePresence>
