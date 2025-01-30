@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Gamepad2, Brain, ChartLine } from "lucide-react";
+import { Gamepad2, Brain, ChartLine, Rocket, Stars, Trophy, Calculator, Bot } from "lucide-react";
 
 export default function Home() {
   const [, navigate] = useLocation();
@@ -22,6 +22,15 @@ export default function Home() {
     show: { y: 0, opacity: 1 }
   };
 
+  const floatAnimation = {
+    y: [0, -10, 0],
+    transition: {
+      duration: 2,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-8 overflow-hidden">
       <motion.div
@@ -34,13 +43,23 @@ export default function Home() {
           variants={item}
           className="text-center mb-12"
         >
-          <motion.h1 
-            className="text-7xl font-bold mb-4 text-white tracking-tight"
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 300, damping: 10 }}
+          <motion.div
+            animate={floatAnimation}
+            className="inline-block mb-6"
           >
-            Math Adventure
-          </motion.h1>
+            <div className="relative">
+              <Calculator className="w-24 h-24 text-white opacity-20 absolute -left-20 -top-8 rotate-12" />
+              <Stars className="w-16 h-16 text-white opacity-20 absolute -right-16 top-0 -rotate-12" />
+              <Bot className="w-20 h-20 text-white opacity-20 absolute -right-24 bottom-0" />
+              <motion.h1 
+                className="text-7xl font-bold mb-4 text-white tracking-tight relative z-10"
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 300, damping: 10 }}
+              >
+                Math Adventure
+              </motion.h1>
+            </div>
+          </motion.div>
           <p className="text-2xl text-white/90">
             Learn math through exciting games and challenges!
           </p>
@@ -54,12 +73,31 @@ export default function Home() {
             <Card className="group relative overflow-hidden border-2 border-transparent hover:border-purple-300 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20">
               <CardContent className="p-8">
                 <div className="absolute -right-8 -top-8 w-32 h-32 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-2xl transform group-hover:scale-150 transition-transform duration-500" />
-                <motion.div
-                  whileHover={{ rotate: 360, scale: 1.2 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <Gamepad2 className="w-12 h-12 mb-6 text-purple-500" />
-                </motion.div>
+
+                <div className="relative h-48 mb-6 rounded-lg bg-gradient-to-b from-purple-100 to-purple-200 flex items-center justify-center overflow-hidden">
+                  <motion.div
+                    animate={floatAnimation}
+                    className="relative z-10"
+                  >
+                    <Rocket className="w-20 h-20 text-purple-500" />
+                  </motion.div>
+                  <motion.div
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      rotate: [0, 180, 360],
+                    }}
+                    transition={{
+                      duration: 20,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                    className="absolute inset-0 opacity-10"
+                  >
+                    <Stars className="w-full h-full text-purple-700" />
+                  </motion.div>
+                  <Gamepad2 className="absolute bottom-4 right-4 w-8 h-8 text-purple-400 opacity-50" />
+                </div>
+
                 <h2 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
                   Space Adventure
                 </h2>
@@ -80,12 +118,31 @@ export default function Home() {
             <Card className="group relative overflow-hidden border-2 border-transparent hover:border-indigo-300 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/20">
               <CardContent className="p-8">
                 <div className="absolute -right-8 -top-8 w-32 h-32 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-full blur-2xl transform group-hover:scale-150 transition-transform duration-500" />
-                <motion.div
-                  whileHover={{ rotate: 360, scale: 1.2 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <Brain className="w-12 h-12 mb-6 text-indigo-500" />
-                </motion.div>
+
+                <div className="relative h-48 mb-6 rounded-lg bg-gradient-to-b from-indigo-100 to-indigo-200 flex items-center justify-center overflow-hidden">
+                  <motion.div
+                    animate={floatAnimation}
+                    className="relative z-10"
+                  >
+                    <Brain className="w-20 h-20 text-indigo-500" />
+                  </motion.div>
+                  <motion.div
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      rotate: [0, -180, -360],
+                    }}
+                    transition={{
+                      duration: 20,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                    className="absolute inset-0 opacity-10"
+                  >
+                    <Trophy className="w-full h-full text-indigo-700" />
+                  </motion.div>
+                  <Calculator className="absolute bottom-4 right-4 w-8 h-8 text-indigo-400 opacity-50" />
+                </div>
+
                 <h2 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
                   Math Puzzles
                 </h2>
