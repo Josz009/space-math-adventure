@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 export const users = pgTable("users", {
@@ -17,8 +17,14 @@ export const progress = pgTable("progress", {
   score: integer("score").default(0),
   correctAnswers: integer("correct_answers").default(0),
   totalAttempts: integer("total_attempts").default(0),
+  averageResponseTime: integer("average_response_time"), // in milliseconds
+  difficultyLevel: integer("difficulty_level").default(1),
+  topicPerformance: jsonb("topic_performance"), // Stores detailed topic-wise stats
+  errorPatterns: jsonb("error_patterns"), // Tracks common mistake patterns
   timeTaken: integer("time_taken"), // in seconds, for time trial mode
   problemsSolved: integer("problems_solved"), // for time trial mode
+  streakCount: integer("streak_count").default(0), // Current correct answer streak
+  lastProblemType: text("last_problem_type"), // Type of the last problem attempted
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
