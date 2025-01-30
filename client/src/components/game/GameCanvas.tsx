@@ -86,31 +86,39 @@ export function GameCanvas({
     if (gamePhase !== 'DODGING' || isGameOver) return;
 
     const checkCollisions = () => {
-      const shipRadius = 20; // Adjusted for rocket size
-      const shipBounds = {
-        x: spaceshipX + 20, // Center of rocket
-        y: spaceshipPosition + 16, // Center of rocket
-        radius: shipRadius
+      // Define rocket hitbox
+      const rocketHitbox = {
+        x: spaceshipX + 20, // Align with rocket's center
+        y: spaceshipPosition + 16, // Align with rocket's center
+        width: 20, // Match rocket's visual width
+        height: 32 // Match rocket's visual height
       };
 
       for (const asteroid of asteroids) {
-        const asteroidBounds = {
-          x: asteroid.position.x,
-          y: asteroid.position.y,
-          radius: asteroid.size / 2
+        const asteroidCenter = {
+          x: asteroid.position.x + asteroid.size / 2,
+          y: asteroid.position.y + asteroid.size / 2
         };
 
-        const dx = shipBounds.x - asteroidBounds.x;
-        const dy = shipBounds.y - asteroidBounds.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        // Use rectangular collision detection for more accurate hits
+        const collision = !(
+          rocketHitbox.x > asteroidCenter.x + asteroid.size / 2 || // Too far right
+          rocketHitbox.x + rocketHitbox.width < asteroidCenter.x - asteroid.size / 2 || // Too far left
+          rocketHitbox.y > asteroidCenter.y + asteroid.size / 2 || // Too far down
+          rocketHitbox.y + rocketHitbox.height < asteroidCenter.y - asteroid.size / 2 // Too far up
+        );
 
-        if (distance < shipBounds.radius + asteroidBounds.radius) {
+        if (collision) {
           // Play explosion sound
           const explosionSound = new Audio('/sounds/explosion.mp3');
           explosionSound.volume = 0.5;
           explosionSound.play();
 
-          setExplosionPosition({ x: shipBounds.x, y: shipBounds.y });
+          // Set explosion at rocket's center
+          setExplosionPosition({
+            x: rocketHitbox.x + rocketHitbox.width / 2,
+            y: rocketHitbox.y + rocketHitbox.height / 2
+          });
           setIsGameOver(true);
           setShowGameOver(true);
 
@@ -126,7 +134,8 @@ export function GameCanvas({
       }
     };
 
-    const interval = setInterval(checkCollisions, 16);
+    // Check collisions more frequently for better detection
+    const interval = setInterval(checkCollisions, 16); // ~60fps
     return () => clearInterval(interval);
   }, [gamePhase, asteroids, spaceshipPosition, spaceshipX, onDodgeComplete, isGameOver]);
 
