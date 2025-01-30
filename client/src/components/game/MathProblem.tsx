@@ -50,16 +50,16 @@ export function MathProblem({ problem, onAnswer }: MathProblemProps) {
   };
 
   return (
-    <div className="relative flex items-center justify-center gap-8">
+    <div className="relative w-full flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 p-4">
       <Card className="w-full max-w-2xl backdrop-blur-lg bg-white/90">
-        <CardContent className="p-8">
+        <CardContent className="p-4 md:p-8">
           <motion.div 
-            className="text-center mb-8"
+            className="text-center mb-4 md:mb-8"
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
           >
             <motion.h3 
-              className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600"
+              className="text-2xl md:text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300, damping: 10 }}
             >
@@ -67,7 +67,7 @@ export function MathProblem({ problem, onAnswer }: MathProblemProps) {
             </motion.h3>
           </motion.div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
             <AnimatePresence mode="sync">
               {problem.options.map((option, index) => (
                 <motion.div
@@ -83,7 +83,7 @@ export function MathProblem({ problem, onAnswer }: MathProblemProps) {
                   }}
                 >
                   <Button
-                    className={`w-full h-24 text-2xl font-bold transition-all duration-300 ${
+                    className={`w-full h-16 md:h-24 text-xl md:text-2xl font-bold transition-all duration-300 ${
                       selected === option
                         ? option === problem.answer
                           ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
@@ -102,14 +102,16 @@ export function MathProblem({ problem, onAnswer }: MathProblemProps) {
         </CardContent>
       </Card>
 
-      {/* Mentor positioned to the right */}
-      <AlienMentor
-        mood={mentorMood}
-        isVisible={showMentor}
-        onMessage={setMentorMessage}
-        onClick={handleMentorClick}
-        className="relative right-0 top-0 transform-none"
-      />
+      {/* Mentor positioned responsively */}
+      <div className="hidden md:block">
+        <AlienMentor
+          mood={mentorMood}
+          isVisible={showMentor}
+          onMessage={setMentorMessage}
+          onClick={handleMentorClick}
+          className="relative transform-none"
+        />
+      </div>
     </div>
   );
 }
