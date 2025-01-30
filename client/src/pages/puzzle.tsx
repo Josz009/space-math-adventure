@@ -16,51 +16,43 @@ interface PuzzleState {
 const PUZZLES = [
   {
     id: 1,
-    type: 'sequence',
-    question: 'What comes next in the sequence: 2, 4, 6, 8, __?',
-    answer: '10',
-    hint: 'Look for the pattern of adding numbers',
-    image: '🔢'
+    type: 'multiplication',
+    question: 'What is 6 × 7?',
+    answer: '42',
+    hint: 'Think of 6 groups of 7 objects',
+    image: '🎲'
   },
   {
     id: 2,
-    type: 'word',
-    question: 'If five pencils cost $1.00, how many pencils can you buy for $3.00?',
-    answer: '15',
-    hint: 'Use multiplication',
-    image: '✏️'
+    type: 'multiplication',
+    question: 'In a classroom, there are 4 rows with 8 desks in each row. How many desks are there in total?',
+    answer: '32',
+    hint: 'Multiply the number of rows by the number of desks in each row',
+    image: '🪑'
   },
   {
     id: 3,
-    type: 'geometry',
-    question: 'A square has a perimeter of 20 inches. What is the length of each side?',
-    answer: '5',
-    hint: 'Perimeter is the sum of all sides. In a square, all sides are equal.',
-    image: '⬜'
+    type: 'multiplication',
+    question: 'A baker has 9 trays with 5 cookies on each tray. How many cookies are there in total?',
+    answer: '45',
+    hint: 'Multiply the number of trays by the number of cookies on each tray',
+    image: '🍪'
   },
   {
     id: 4,
-    type: 'fraction',
-    question: 'If you have 3/4 of a pizza and eat 1/4, how much pizza is left?',
-    answer: '1/2',
-    hint: 'Subtract fractions: 3/4 - 1/4',
-    image: '🍕'
+    type: 'multiplication',
+    question: 'What is 8 × 6?',
+    answer: '48',
+    hint: 'Think of it as 8 groups of 6 things',
+    image: '📦'
   },
   {
     id: 5,
-    type: 'time',
-    question: 'If a movie starts at 2:30 PM and is 150 minutes long, what time does it end?',
-    answer: '5:00',
-    hint: '150 minutes = 2 hours and 30 minutes',
-    image: '⏰'
-  },
-  {
-    id: 6,
     type: 'multiplication',
-    question: 'A garden has 6 rows of flowers with 8 flowers in each row. How many flowers are there in total?',
-    answer: '48',
-    hint: 'Multiply the number of rows by the number of flowers in each row',
-    image: '🌸'
+    question: 'A sticker book has 7 pages with 6 stickers on each page. How many stickers are in the book?',
+    answer: '42',
+    hint: 'Multiply the number of pages by the number of stickers per page',
+    image: '⭐'
   }
 ];
 
