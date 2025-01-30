@@ -30,7 +30,38 @@ const PUZZLES = [
     hint: 'Use multiplication',
     image: '✏️'
   },
-  // Add more puzzles as needed
+  {
+    id: 3,
+    type: 'geometry',
+    question: 'A square has a perimeter of 20 inches. What is the length of each side?',
+    answer: '5',
+    hint: 'Perimeter is the sum of all sides. In a square, all sides are equal.',
+    image: '⬜'
+  },
+  {
+    id: 4,
+    type: 'fraction',
+    question: 'If you have 3/4 of a pizza and eat 1/4, how much pizza is left?',
+    answer: '1/2',
+    hint: 'Subtract fractions: 3/4 - 1/4',
+    image: '🍕'
+  },
+  {
+    id: 5,
+    type: 'time',
+    question: 'If a movie starts at 2:30 PM and is 150 minutes long, what time does it end?',
+    answer: '5:00',
+    hint: '150 minutes = 2 hours and 30 minutes',
+    image: '⏰'
+  },
+  {
+    id: 6,
+    type: 'multiplication',
+    question: 'A garden has 6 rows of flowers with 8 flowers in each row. How many flowers are there in total?',
+    answer: '48',
+    hint: 'Multiply the number of rows by the number of flowers in each row',
+    image: '🌸'
+  }
 ];
 
 export default function Puzzle() {
