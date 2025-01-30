@@ -37,41 +37,39 @@ export function Spaceship({ position, powered, x }: SpaceshipProps) {
           </motion.div>
         )}
 
-        {/* Main body of the spaceship */}
+        {/* Main body */}
         <div className="absolute inset-0">
-          {/* Main hull */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-400 via-blue-600 to-blue-800 rounded-xl transform rotate-90">
-            {/* Metallic overlay effect */}
-            <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/40 rounded-xl" />
+          {/* Rocket body */}
+          <div className="absolute inset-0">
+            {/* Nosecone */}
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-6 h-8 bg-gradient-to-b from-red-500 to-red-600 clip-path-triangle" />
 
-            {/* Cockpit window */}
-            <div className="absolute top-1/4 left-1/2 w-8 h-8 -translate-x-1/2 -translate-y-1/2">
-              <div className="w-full h-full bg-gradient-to-br from-cyan-300 via-cyan-400 to-cyan-600 rounded-full border-2 border-blue-800/50">
-                <div className="absolute inset-1 bg-gradient-to-tl from-transparent via-white/50 to-white/80 rounded-full" />
-              </div>
+            {/* Main fuselage */}
+            <div className="absolute inset-0 bg-gradient-to-b from-gray-200 to-gray-400 rounded-xl">
+              {/* Stripes */}
+              <div className="absolute inset-x-0 top-1/4 h-2 bg-red-500" />
+              <div className="absolute inset-x-0 bottom-1/4 h-2 bg-red-500" />
             </div>
 
-            {/* Wing structures */}
-            <div className="absolute top-0 right-0 w-4 h-12 bg-gradient-to-r from-blue-500 to-blue-700 rounded-tr-xl transform -skew-y-12" />
-            <div className="absolute bottom-0 right-0 w-4 h-12 bg-gradient-to-r from-blue-500 to-blue-700 rounded-br-xl transform skew-y-12" />
+            {/* Windows */}
+            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-6 h-6 bg-cyan-300 rounded-full border-2 border-gray-600">
+              <div className="absolute inset-1 bg-gradient-to-br from-white/80 to-transparent rounded-full" />
+            </div>
 
-            {/* Engine nozzles */}
-            <div className="absolute top-1/4 left-2 w-3 h-3 bg-gradient-to-r from-slate-600 to-slate-800 rounded-full ring-1 ring-blue-400/50" />
-            <div className="absolute bottom-1/4 left-2 w-3 h-3 bg-gradient-to-r from-slate-600 to-slate-800 rounded-full ring-1 ring-blue-400/50" />
-          </div>
+            {/* Fins */}
+            <div className="absolute bottom-0 -left-2 w-4 h-8 bg-red-500 transform -rotate-45 origin-bottom-right" />
+            <div className="absolute bottom-0 -right-2 w-4 h-8 bg-red-500 transform rotate-45 origin-bottom-left" />
 
-          {/* Side fins */}
-          <div className="absolute -top-2 left-1/2 w-8 h-4 -translate-x-1/2 bg-gradient-to-t from-blue-500 to-blue-700 rounded-t-lg transform -rotate-12">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-          </div>
-          <div className="absolute -bottom-2 left-1/2 w-8 h-4 -translate-x-1/2 bg-gradient-to-b from-blue-500 to-blue-700 rounded-b-lg transform rotate-12">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+            {/* Engine nozzle */}
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-6 h-4 bg-gradient-to-b from-gray-600 to-gray-800 rounded-b-lg" />
           </div>
         </div>
 
-        {/* Dynamic lighting effects */}
-        <div className="absolute inset-y-2 right-4 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full blur-sm" />
-        <div className="absolute inset-y-2 left-4 w-1/4 bg-gradient-to-l from-transparent via-blue-400/30 to-transparent rounded-full blur-sm" />
+        <style jsx>{`
+          .clip-path-triangle {
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+          }
+        `}</style>
       </div>
     </motion.div>
   );

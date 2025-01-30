@@ -86,10 +86,10 @@ export function GameCanvas({
     if (gamePhase !== 'DODGING' || isGameOver) return;
 
     const checkCollisions = () => {
-      const shipRadius = 25; // Adjusted for new ship size
+      const shipRadius = 20; // Adjusted for rocket size
       const shipBounds = {
-        x: spaceshipX + 25, // Adjusted to match visual center of ship
-        y: spaceshipPosition + 16,
+        x: spaceshipX + 20, // Center of rocket
+        y: spaceshipPosition + 16, // Center of rocket
         radius: shipRadius
       };
 
@@ -126,9 +126,22 @@ export function GameCanvas({
       }
     };
 
-    const interval = setInterval(checkCollisions, 16); // Increased check frequency for better detection
+    const interval = setInterval(checkCollisions, 16);
     return () => clearInterval(interval);
   }, [gamePhase, asteroids, spaceshipPosition, spaceshipX, onDodgeComplete, isGameOver]);
+
+  // Add timer for dodge phase
+  useEffect(() => {
+    if (gamePhase === 'DODGING' && !isGameOver) {
+      const timer = setTimeout(() => {
+        setSpaceshipX(100);
+        setSpaceshipPosition(300);
+        onDodgeComplete(true);
+      }, 9000); // 9 seconds for dodge phase
+
+      return () => clearTimeout(timer);
+    }
+  }, [gamePhase, isGameOver, onDodgeComplete]);
 
   // Handle correct/incorrect answers during question phase
   const handleAnswer = (correct: boolean) => {
