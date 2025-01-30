@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,44 +45,71 @@ export default function Puzzle() {
   const [showHint, setShowHint] = useState(false);
   const [showTopicSelector, setShowTopicSelector] = useState(true);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handleTopicSelect = (topic: string, grade: number) => {
     setGameState(prev => ({ ...prev, topic, grade }));
     setShowTopicSelector(false);
   };
 
-  const handleSubmit = () => {
+  const moveToNextPuzzle = () => {
+    if (gameState.currentPuzzle < PUZZLES.length - 1) {
+      setGameState(prev => ({
+        ...prev,
+        currentPuzzle: prev.currentPuzzle + 1
+      }));
+      setAnswer('');
+      setShowHint(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (isTransitioning) return;
+
     const currentAnswer = answer.trim();
     const correctAnswer = PUZZLES[gameState.currentPuzzle].answer;
 
     if (currentAnswer === correctAnswer) {
+      setIsTransitioning(true);
       setShowCelebration(true);
+
+      // Update score immediately
       setGameState(prev => ({
         ...prev,
-        score: prev.score + 100,
-        currentPuzzle: prev.currentPuzzle < PUZZLES.length - 1 ? prev.currentPuzzle + 1 : prev.currentPuzzle
+        score: prev.score + 100
       }));
 
-      // Reset states for next puzzle
-      setAnswer('');
-      setShowHint(false);
+      // Wait for celebration animation
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Hide celebration after delay
+      // Move to next puzzle
+      moveToNextPuzzle();
+
+      // Hide celebration and reset transition state
       setTimeout(() => {
         setShowCelebration(false);
-      }, 2000);
+        setIsTransitioning(false);
+      }, 500);
     } else {
-      // Wrong answer handling
       setAnswer('');
-      setShowHint(false);
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !isTransitioning) {
       handleSubmit();
     }
   };
+
+  // Reset isTransitioning if it gets stuck
+  useEffect(() => {
+    if (isTransitioning) {
+      const timeout = setTimeout(() => {
+        setIsTransitioning(false);
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [isTransitioning]);
 
   if (!gameState.topic || !gameState.grade) {
     return (
@@ -96,6 +123,8 @@ export default function Puzzle() {
       </AnimatePresence>
     );
   }
+
+  const currentPuzzle = PUZZLES[gameState.currentPuzzle];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-600 to-purple-600 p-8">
@@ -116,12 +145,13 @@ export default function Puzzle() {
         <Card>
           <CardContent className="p-8">
             <motion.div 
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
+              key={currentPuzzle.id}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
               className="text-center mb-8"
             >
               <span className="text-6xl mb-4 block">
-                {PUZZLES[gameState.currentPuzzle].image}
+                {currentPuzzle.image}
               </span>
               <h2 className="text-2xl font-bold">
                 Puzzle #{gameState.currentPuzzle + 1}
@@ -129,7 +159,7 @@ export default function Puzzle() {
             </motion.div>
 
             <p className="text-lg mb-6">
-              {PUZZLES[gameState.currentPuzzle].question}
+              {currentPuzzle.question}
             </p>
 
             <div className="space-y-4">
@@ -140,12 +170,14 @@ export default function Puzzle() {
                 onKeyPress={handleKeyPress}
                 placeholder="Your answer..."
                 className="text-lg"
+                disabled={isTransitioning}
               />
 
               <div className="flex gap-4">
                 <Button
                   onClick={handleSubmit}
                   className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                  disabled={isTransitioning}
                 >
                   Submit Answer
                 </Button>
@@ -154,6 +186,7 @@ export default function Puzzle() {
                   variant="outline"
                   onClick={() => setShowHint(true)}
                   className="w-full"
+                  disabled={isTransitioning}
                 >
                   Need a Hint?
                 </Button>
@@ -168,7 +201,7 @@ export default function Puzzle() {
                     className="mt-4 p-4 bg-purple-100 rounded-lg"
                   >
                     <p className="text-purple-700">
-                      Hint: {PUZZLES[gameState.currentPuzzle].hint}
+                      Hint: {currentPuzzle.hint}
                     </p>
                   </motion.div>
                 )}
