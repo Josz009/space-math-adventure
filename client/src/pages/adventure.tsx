@@ -98,13 +98,17 @@ export default function Adventure() {
 
   const handleDodgeComplete = useCallback((survived: boolean) => {
     if (survived) {
-      setGamePhase('QUESTIONS');
-      setGameState(prev => ({
-        ...prev,
-        level: prev.level + 1,
-        score: prev.score + 500,
-        wrongAnswers: 0 // Reset wrong answers counter
-      }));
+      // Add a slight delay before transitioning back to questions
+      setTimeout(() => {
+        setGamePhase('QUESTIONS');
+        setGameState(prev => ({
+          ...prev,
+          level: prev.level + 1,
+          score: prev.score + 500,
+          wrongAnswers: 0 // Reset wrong answers counter
+        }));
+        setShowInstructions(true);
+      }, 1000);
     } else {
       // If hit by asteroid, reset current progress but keep total
       setGameState(prev => ({
@@ -113,8 +117,8 @@ export default function Adventure() {
         wrongAnswers: prev.wrongAnswers + 1
       }));
       setGamePhase('QUESTIONS');
+      setShowInstructions(true);
     }
-    setShowInstructions(true);
   }, []);
 
   if (!gameState.topic || !gameState.grade) {
@@ -132,7 +136,7 @@ export default function Adventure() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-900 to-blue-900 p-8">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="max-w-6xl mx-auto"
@@ -157,21 +161,21 @@ export default function Adventure() {
         </div>
 
         <div className="mb-4">
-          <Progress 
-            value={(gameState.correctAnswers / 5) * 100} 
+          <Progress
+            value={(gameState.correctAnswers / 5) * 100}
             className="h-2 bg-purple-200"
           />
         </div>
 
-        <GameCanvas 
-          onAnswer={handleAnswer} 
+        <GameCanvas
+          onAnswer={handleAnswer}
           gamePhase={gamePhase}
           onDodgeComplete={handleDodgeComplete}
           wrongAnswers={gameState.wrongAnswers}
           speed={Math.min(2, 1 + (gameState.totalCorrectAnswers / 10))}
         >
           {gamePhase === 'QUESTIONS' && (
-            <MathProblem 
+            <MathProblem
               problem={problem}
               onAnswer={handleAnswer}
             />
@@ -190,7 +194,7 @@ export default function Adventure() {
                 <>
                   <h3 className="text-xl font-bold mb-2">Answer Questions!</h3>
                   <p className="text-gray-700">
-                    Get 5 correct answers to power up your spaceship. 
+                    Get 5 correct answers to power up your spaceship.
                     Each wrong answer will make the asteroids bigger!
                   </p>
                 </>
@@ -198,12 +202,12 @@ export default function Adventure() {
                 <>
                   <h3 className="text-xl font-bold mb-2">Dodge Asteroids!</h3>
                   <p className="text-gray-700">
-                    Use arrow keys to move your spaceship. 
+                    Use arrow keys to move your spaceship.
                     Survive the asteroid field to continue!
                   </p>
                 </>
               ) : null}
-              <Button 
+              <Button
                 className="mt-4"
                 onClick={() => setShowInstructions(false)}
               >

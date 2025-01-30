@@ -13,10 +13,10 @@ interface GameCanvasProps {
   speed: number;
 }
 
-export function GameCanvas({ 
-  children, 
-  onAnswer, 
-  gamePhase, 
+export function GameCanvas({
+  children,
+  onAnswer,
+  gamePhase,
   onDodgeComplete,
   wrongAnswers,
   speed
@@ -25,10 +25,10 @@ export function GameCanvas({
   const [spaceshipPosition, setSpaceshipPosition] = useState(300);
   const [spaceshipX, setSpaceshipX] = useState(100);
   const [isPowered, setIsPowered] = useState(false);
-  const [asteroids, setAsteroids] = useState<Array<{ 
-    id: number; 
-    size: number; 
-    position: { x: number; y: number }; 
+  const [asteroids, setAsteroids] = useState<Array<{
+    id: number;
+    size: number;
+    position: { x: number; y: number };
     rotation: number;
     speed: number;
   }>>([]);
@@ -118,7 +118,7 @@ export function GameCanvas({
         setAsteroids(prev => [...prev, {
           id: Date.now(),
           size: baseSize + sizeIncrease,
-          position: { 
+          position: {
             x: window.innerWidth,
             y: Math.random() * 400 + 100
           },
@@ -138,6 +138,9 @@ export function GameCanvas({
         const remaining = prev.filter(asteroid => asteroid.position.x > -200);
         // If in dodge phase and all asteroids are cleared, complete the phase
         if (gamePhase === 'DODGING' && remaining.length === 0 && prev.length > 0) {
+          // Reset ship position and trigger completion
+          setSpaceshipX(100);
+          setSpaceshipPosition(300);
           onDodgeComplete(true);
         }
         return remaining;
@@ -146,6 +149,28 @@ export function GameCanvas({
 
     return () => clearInterval(cleanup);
   }, [gamePhase, onDodgeComplete]);
+
+  // When game phase changes to DODGING, spawn initial asteroids
+  useEffect(() => {
+    if (gamePhase === 'DODGING') {
+      // Spawn initial wave of asteroids
+      const baseSize = 20 + Math.random() * 30;
+      const sizeIncrease = wrongAnswers * 5;
+
+      setAsteroids([
+        {
+          id: Date.now(),
+          size: baseSize + sizeIncrease,
+          position: { x: window.innerWidth, y: Math.random() * 400 + 100 },
+          rotation: Math.random() * 360,
+          speed: speed * (1 + Math.random() * 0.5)
+        }
+      ]);
+    } else {
+      // Clear asteroids when not in dodging phase
+      setAsteroids([]);
+    }
+  }, [gamePhase, wrongAnswers, speed]);
 
   // Stars background effect with speed modification
   useEffect(() => {
@@ -226,9 +251,9 @@ export function GameCanvas({
       )}
 
       {/* Spaceship */}
-      <Spaceship 
-        position={spaceshipPosition} 
-        powered={isPowered} 
+      <Spaceship
+        position={spaceshipPosition}
+        powered={isPowered}
         x={gamePhase === 'DODGING' ? spaceshipX : undefined}
       />
 
@@ -246,11 +271,11 @@ export function GameCanvas({
 
       {/* Math Problem UI */}
       {gamePhase === 'QUESTIONS' && (
-        <motion.div 
+        <motion.div
           className="relative z-10 h-full flex items-center justify-center p-8"
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ 
+          transition={{
             type: "spring",
             stiffness: 200,
             damping: 20
