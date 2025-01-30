@@ -56,7 +56,7 @@ export default function Adventure() {
     };
 
     SPACE_ACHIEVEMENTS.forEach(achievement => {
-      if (!unlockedAchievements.find(a => a.id === achievement.id) && 
+      if (!unlockedAchievements.find(a => a.id === achievement.id) &&
           checkAchievementUnlock(achievement, stats)) {
         setUnlockedAchievements(prev => [...prev, { ...achievement, unlockedAt: new Date().toISOString() }]);
         setShowAchievement(achievement);
@@ -65,10 +65,18 @@ export default function Adventure() {
     });
   }, [gameState, unlockedAchievements]);
 
+  // Add effect to update problem when difficulty changes
+  useEffect(() => {
+    const difficulty = calculateDifficulty(performance);
+    if (gameState.topic && gamePhase === 'QUESTIONS') {
+      setProblem(generateMathProblem(difficulty, gameState.topic as any));
+    }
+  }, [performance, gameState.topic, gamePhase]);
+
   const handleTopicSelect = (topic: string, grade: number) => {
-    setGameState(prev => ({ 
-      ...prev, 
-      topic, 
+    setGameState(prev => ({
+      ...prev,
+      topic,
       grade,
       problemsSolved: { ...prev.problemsSolved, [topic]: 0 }
     }));
@@ -94,6 +102,13 @@ export default function Adventure() {
           ...prev.problemsSolved,
           [topic]: (prev.problemsSolved[topic] || 0) + 1
         };
+
+        // Generate a new problem immediately after correct answer
+        const newDifficulty = calculateDifficulty({
+          correct: performance.correct + 1,
+          total: performance.total + 1
+        });
+        setProblem(generateMathProblem(newDifficulty, topic as any));
 
         // After 5 correct answers, switch to dodging phase
         if (newCorrectAnswers === 5) {
@@ -126,8 +141,17 @@ export default function Adventure() {
         wrongAnswers: prev.wrongAnswers + 1,
         consecutiveCorrect: 0 // Reset consecutive correct answers
       }));
+
+      // Generate a new problem after incorrect answer
+      const newDifficulty = calculateDifficulty({
+        correct: performance.correct,
+        total: performance.total + 1
+      });
+      if (gameState.topic) {
+        setProblem(generateMathProblem(newDifficulty, gameState.topic as any));
+      }
     }
-  }, []);
+  }, [performance, gameState.topic]);
 
   const handleDodgeComplete = useCallback((survived: boolean) => {
     if (survived) {
