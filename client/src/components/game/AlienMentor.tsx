@@ -82,7 +82,7 @@ export function AlienMentor({ onMessage, mood = 'happy', isVisible = true, class
               rotate: [-5, 5, -5],
               transition: { duration: 2, repeat: Infinity }
             } : {}}
-            className="relative w-32 h-32 mx-auto cursor-pointer"
+            className="relative w-24 h-24 mx-auto cursor-pointer"
           >
             {/* Body */}
             <motion.div 
@@ -98,9 +98,9 @@ export function AlienMentor({ onMessage, mood = 'happy', isVisible = true, class
             />
 
             {/* Eyes */}
-            <div className="absolute top-1/4 left-1/4 w-full h-full flex space-x-4">
+            <div className="absolute top-1/4 left-1/4 w-full h-full flex space-x-3">
               <motion.div
-                className="w-6 h-6 bg-black rounded-full"
+                className="w-4 h-4 bg-black rounded-full"
                 animate={isHovered ? {
                   scale: [1, 1.5, 1],
                   transition: { duration: 0.5 }
@@ -110,7 +110,7 @@ export function AlienMentor({ onMessage, mood = 'happy', isVisible = true, class
                 }}
               />
               <motion.div
-                className="w-6 h-6 bg-black rounded-full"
+                className="w-4 h-4 bg-black rounded-full"
                 animate={isHovered ? {
                   scale: [1, 1.5, 1],
                   transition: { duration: 0.5 }
@@ -122,9 +122,9 @@ export function AlienMentor({ onMessage, mood = 'happy', isVisible = true, class
             </div>
 
             {/* Antennae */}
-            <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 flex space-x-8">
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 flex space-x-6">
               <motion.div
-                className="w-1 h-8 bg-emerald-400 origin-bottom"
+                className="w-1 h-6 bg-emerald-400 origin-bottom"
                 animate={antennaeActive ? {
                   rotateZ: [-15, 15, -15],
                 } : isHovered ? {
@@ -141,7 +141,7 @@ export function AlienMentor({ onMessage, mood = 'happy', isVisible = true, class
                 />
               </motion.div>
               <motion.div
-                className="w-1 h-8 bg-emerald-400 origin-bottom"
+                className="w-1 h-6 bg-emerald-400 origin-bottom"
                 animate={antennaeActive ? {
                   rotateZ: [15, -15, 15],
                 } : isHovered ? {
@@ -161,7 +161,7 @@ export function AlienMentor({ onMessage, mood = 'happy', isVisible = true, class
 
             {/* Mouth */}
             <motion.div
-              className="absolute bottom-1/4 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-black rounded-full"
+              className="absolute bottom-1/4 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-black rounded-full"
               animate={mood === 'happy' || isHovered ? {
                 scaleY: [1, 2, 1],
                 y: [0, -2, 0],
