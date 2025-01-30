@@ -7,6 +7,7 @@ import Home from "@/pages/home";
 import Adventure from "@/pages/adventure";
 import Puzzle from "@/pages/puzzle";
 import TimeTrial from "@/pages/time-trial";
+import Multiplayer from "@/pages/multiplayer";
 import ParentDashboard from "@/pages/parent-dashboard";
 
 function Router() {
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/adventure" component={Adventure} />
       <Route path="/puzzle" component={Puzzle} />
       <Route path="/time-trial" component={TimeTrial} />
+      <Route path="/multiplayer" component={Multiplayer} />
       <Route path="/parent" component={ParentDashboard} />
       <Route component={NotFound} />
     </Switch>

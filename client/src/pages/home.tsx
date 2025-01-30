@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Gamepad2, Brain, ChartLine, Rocket, Stars, Trophy, Calculator, Bot, Timer } from "lucide-react";
+import { Gamepad2, Brain, ChartLine, Rocket, Stars, Trophy, Calculator, Bot, Timer, Users } from "lucide-react";
 
 export default function Home() {
   const [, navigate] = useLocation();
@@ -199,6 +199,49 @@ export default function Home() {
                   onClick={() => navigate("/time-trial")}
                 >
                   Start Time Trial
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+          <motion.div variants={item}>
+            <Card className="group relative overflow-hidden border-2 border-transparent hover:border-green-300 transition-all duration-300 hover:shadow-2xl hover:shadow-green-500/20">
+              <CardContent className="p-8">
+                <div className="absolute -right-8 -top-8 w-32 h-32 bg-gradient-to-br from-green-500/20 to-teal-500/20 rounded-full blur-2xl transform group-hover:scale-150 transition-transform duration-500" />
+
+                <div className="relative h-48 mb-6 rounded-lg bg-gradient-to-b from-green-100 to-green-200 flex items-center justify-center overflow-hidden">
+                  <motion.div
+                    animate={floatAnimation}
+                    className="relative z-10"
+                  >
+                    <Users className="w-20 h-20 text-green-500" />
+                  </motion.div>
+                  <motion.div
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      rotate: [0, 180, 360],
+                    }}
+                    transition={{
+                      duration: 20,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                    className="absolute inset-0 opacity-10"
+                  >
+                    <Trophy className="w-full h-full text-green-700" />
+                  </motion.div>
+                </div>
+
+                <h2 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-teal-600">
+                  Multiplayer Race
+                </h2>
+                <p className="mb-8 text-gray-600 text-lg">
+                  Compete with friends in real-time! Race to solve math problems and climb the leaderboard.
+                </p>
+                <Button 
+                  className="w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-lg py-6"
+                  onClick={() => navigate("/multiplayer")}
+                >
+                  Join Multiplayer
                 </Button>
               </CardContent>
             </Card>

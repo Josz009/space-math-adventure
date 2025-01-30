@@ -3,9 +3,13 @@ import { createServer, type Server } from "http";
 import { db } from "@db";
 import { users, progress, achievements, mathProblems } from "@db/schema";
 import { eq } from "drizzle-orm";
+import { MultiplayerServer } from "./websocket";
 
 export function registerRoutes(app: Express): Server {
   const httpServer = createServer(app);
+
+  // Initialize WebSocket server for multiplayer
+  new MultiplayerServer(httpServer);
 
   // Get user progress
   app.get("/api/progress/:userId", async (req, res) => {
@@ -18,7 +22,7 @@ export function registerRoutes(app: Express): Server {
   // Update progress
   app.post("/api/progress", async (req, res) => {
     const { userId, gameMode, score, correctAnswers, totalAttempts } = req.body;
-    
+
     const result = await db
       .insert(progress)
       .values({
@@ -29,7 +33,7 @@ export function registerRoutes(app: Express): Server {
         totalAttempts,
       })
       .returning();
-      
+
     res.json(result[0]);
   });
 
@@ -44,12 +48,12 @@ export function registerRoutes(app: Express): Server {
   // Unlock achievement
   app.post("/api/achievements", async (req, res) => {
     const { userId, type, description } = req.body;
-    
+
     const result = await db
       .insert(achievements)
       .values({ userId, type, description })
       .returning();
-      
+
     res.json(result[0]);
   });
 
