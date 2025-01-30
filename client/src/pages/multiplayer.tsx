@@ -21,13 +21,14 @@ export default function Multiplayer() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [username, setUsername] = useState('');
   const [currentProblem, setCurrentProblem] = useState<any>(null);
-  const [showTopicSelector, setShowTopicSelector] = useState(true);
+  const [showTopicSelector, setShowTopicSelector] = useState(false);
+  const [showUsernameForm, setShowUsernameForm] = useState(true);
   const [topic, setTopic] = useState<string | null>(null);
   const [grade, setGrade] = useState<number | null>(null);
 
   // WebSocket setup
   useEffect(() => {
-    if (!username) return;
+    if (!username || showUsernameForm) return;
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/ws`;
@@ -54,7 +55,7 @@ export default function Multiplayer() {
     return () => {
       websocket.close();
     };
-  }, [username]);
+  }, [username, showUsernameForm]);
 
   const handleWebSocketMessage = (data: any) => {
     switch (data.type) {
@@ -77,6 +78,7 @@ export default function Multiplayer() {
   const handleUsernameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (username.trim()) {
+      setShowUsernameForm(false);
       setShowTopicSelector(true);
     }
   };
@@ -92,23 +94,28 @@ export default function Multiplayer() {
     }));
   };
 
-  if (!username) {
+  if (showUsernameForm) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-indigo-600 to-purple-600 p-8">
         <div className="max-w-md mx-auto">
           <Card>
             <CardContent className="p-8">
               <h2 className="text-2xl font-bold mb-4">Enter Your Name</h2>
-              <form onSubmit={handleUsernameSubmit}>
+              <form onSubmit={handleUsernameSubmit} className="space-y-4">
                 <Input
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Your name"
                   className="mb-4"
                 />
-                <Button type="submit" className="w-full">
-                  Join Game
-                </Button>
+                <div className="flex gap-4">
+                  <Button type="submit" className="flex-1" disabled={!username.trim()}>
+                    Join Game
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => navigate("/")} className="flex-1">
+                    Cancel
+                  </Button>
+                </div>
               </form>
             </CardContent>
           </Card>
