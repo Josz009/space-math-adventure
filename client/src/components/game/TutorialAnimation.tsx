@@ -107,6 +107,83 @@ export function TutorialAnimation({ topic, onComplete, difficulty }: TutorialAni
           ))}
         </motion.div>
       )
+    },
+    {
+      explanation: "In this example: 3 rows × 4 objects = 12 total objects",
+      visualComponent: (
+        <motion.div className="flex flex-col items-center gap-4">
+          <motion.div className="flex flex-col gap-4">
+            {[...Array(3)].map((_, row) => (
+              <motion.div
+                key={row}
+                className="flex gap-2 justify-center"
+                initial={{ scale: 1 }}
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ delay: row * 0.5, duration: 0.5 }}
+              >
+                {[...Array(4)].map((_, col) => (
+                  <motion.div
+                    key={col}
+                    className="w-8 h-8 bg-purple-400 rounded-full"
+                  />
+                ))}
+              </motion.div>
+            ))}
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2 }}
+            className="text-2xl font-bold"
+          >
+            = 12
+          </motion.div>
+        </motion.div>
+      )
+    }
+  ];
+
+  const divisionTutorial: TutorialStep[] = [
+    {
+      explanation: "Division is sharing objects into equal groups!",
+      visualComponent: (
+        <motion.div className="flex flex-col items-center gap-8">
+          <motion.div className="flex gap-2">
+            {[...Array(12)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="w-8 h-8 bg-yellow-400 rounded-full"
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.1 }}
+              />
+            ))}
+          </motion.div>
+        </motion.div>
+      )
+    },
+    {
+      explanation: "Let's divide 12 objects into 3 equal groups!",
+      visualComponent: (
+        <motion.div className="flex flex-col gap-8">
+          {[...Array(3)].map((_, row) => (
+            <motion.div
+              key={row}
+              className="flex gap-2 justify-center"
+              initial={{ x: -100, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: row * 0.5 }}
+            >
+              {[...Array(4)].map((_, col) => (
+                <motion.div
+                  key={col}
+                  className="w-8 h-8 bg-yellow-400 rounded-full"
+                />
+              ))}
+            </motion.div>
+          ))}
+        </motion.div>
+      )
     }
   ];
 
@@ -114,6 +191,7 @@ export function TutorialAnimation({ topic, onComplete, difficulty }: TutorialAni
   const tutorials = {
     addition: additionTutorial,
     multiplication: multiplicationTutorial,
+    division: divisionTutorial,
     // Add more tutorials for other operations
   };
 
@@ -142,7 +220,7 @@ export function TutorialAnimation({ topic, onComplete, difficulty }: TutorialAni
             <div className="text-center text-xl font-semibold text-gray-700 mb-8">
               {currentTutorial[currentStep].explanation}
             </div>
-            
+
             <div className="min-h-[200px] flex items-center justify-center">
               {currentTutorial[currentStep].visualComponent}
             </div>
@@ -163,6 +241,7 @@ export function TutorialAnimation({ topic, onComplete, difficulty }: TutorialAni
           <AlienMentor
             mood="thinking"
             isVisible={!isComplete}
+            onMessage={(msg) => console.log(msg)}
           />
         </div>
       </div>
