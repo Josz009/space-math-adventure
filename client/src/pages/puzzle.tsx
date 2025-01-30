@@ -1,60 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { TopicSelector } from '@/components/game/TopicSelector';
+import { generatePuzzle, type GeneratedPuzzle } from '@/lib/puzzleGenerator';
 
 interface PuzzleState {
   topic: string | null;
   grade: number | null;
   score: number;
-  currentPuzzle: number;
+  puzzlesSolved: number;
 }
-
-const PUZZLES = [
-  {
-    id: 1,
-    type: 'multiplication',
-    question: 'What is 6 × 7?',
-    answer: '42',
-    hint: 'Think of 6 groups of 7 objects',
-    image: '🎲'
-  },
-  {
-    id: 2,
-    type: 'multiplication',
-    question: 'In a classroom, there are 4 rows with 8 desks in each row. How many desks are there in total?',
-    answer: '32',
-    hint: 'Multiply the number of rows by the number of desks in each row',
-    image: '🪑'
-  },
-  {
-    id: 3,
-    type: 'multiplication',
-    question: 'A baker has 9 trays with 5 cookies on each tray. How many cookies are there in total?',
-    answer: '45',
-    hint: 'Multiply the number of trays by the number of cookies on each tray',
-    image: '🍪'
-  },
-  {
-    id: 4,
-    type: 'multiplication',
-    question: 'What is 8 × 6?',
-    answer: '48',
-    hint: 'Think of it as 8 groups of 6 things',
-    image: '📦'
-  },
-  {
-    id: 5,
-    type: 'multiplication',
-    question: 'A sticker book has 7 pages with 6 stickers on each page. How many stickers are in the book?',
-    answer: '42',
-    hint: 'Multiply the number of pages by the number of stickers per page',
-    image: '⭐'
-  }
-];
 
 export default function Puzzle() {
   const [, navigate] = useLocation();
@@ -62,8 +20,10 @@ export default function Puzzle() {
     topic: null,
     grade: null,
     score: 0,
-    currentPuzzle: 0
+    puzzlesSolved: 0
   });
+
+  const [currentPuzzle, setCurrentPuzzle] = useState<GeneratedPuzzle | null>(null);
   const [answer, setAnswer] = useState('');
   const [showHint, setShowHint] = useState(false);
   const [showTopicSelector, setShowTopicSelector] = useState(true);
@@ -72,35 +32,37 @@ export default function Puzzle() {
   const handleTopicSelect = (topic: string, grade: number) => {
     setGameState(prev => ({ ...prev, topic, grade }));
     setShowTopicSelector(false);
+    // Generate first puzzle
+    const newPuzzle = generatePuzzle(topic, grade);
+    setCurrentPuzzle(newPuzzle);
   };
 
   const handleSubmit = () => {
+    if (!currentPuzzle || !gameState.topic || !gameState.grade) return;
+
     const currentAnswer = answer.trim();
-    const correctAnswer = PUZZLES[gameState.currentPuzzle].answer;
+    const correctAnswer = currentPuzzle.answer;
 
     if (currentAnswer === correctAnswer) {
       // Show celebration first
       setShowCelebration(true);
 
-      // Update score
+      // Update score and puzzles solved
       setGameState(prev => ({
         ...prev,
-        score: prev.score + 100
+        score: prev.score + 100,
+        puzzlesSolved: prev.puzzlesSolved + 1
       }));
 
       // Clear input and hide hint
       setAnswer('');
       setShowHint(false);
 
-      // Wait for celebration animation, then move to next puzzle
+      // Generate next puzzle after a delay
       setTimeout(() => {
         setShowCelebration(false);
-        setGameState(prev => ({
-          ...prev,
-          currentPuzzle: prev.currentPuzzle < PUZZLES.length - 1 
-            ? prev.currentPuzzle + 1 
-            : prev.currentPuzzle
-        }));
+        const newPuzzle = generatePuzzle(gameState.topic!, gameState.grade!);
+        setCurrentPuzzle(newPuzzle);
       }, 1000);
     } else {
       setAnswer('');
@@ -126,7 +88,7 @@ export default function Puzzle() {
     );
   }
 
-  const currentPuzzle = PUZZLES[gameState.currentPuzzle];
+  if (!currentPuzzle) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-600 to-purple-600 p-8">
@@ -139,8 +101,13 @@ export default function Puzzle() {
           <Button variant="outline" onClick={() => navigate("/")}>
             ← Back to Home
           </Button>
-          <div className="bg-white rounded-lg px-4 py-2">
-            Score: {gameState.score}
+          <div className="flex gap-4">
+            <div className="bg-white rounded-lg px-4 py-2">
+              Score: {gameState.score}
+            </div>
+            <div className="bg-white rounded-lg px-4 py-2">
+              Puzzles Solved: {gameState.puzzlesSolved}
+            </div>
           </div>
         </div>
 
@@ -156,7 +123,7 @@ export default function Puzzle() {
                 {currentPuzzle.image}
               </span>
               <h2 className="text-2xl font-bold">
-                Puzzle #{gameState.currentPuzzle + 1}
+                Puzzle #{gameState.puzzlesSolved + 1}
               </h2>
             </motion.div>
 
