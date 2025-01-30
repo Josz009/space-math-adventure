@@ -17,6 +17,8 @@ export const progress = pgTable("progress", {
   score: integer("score").default(0),
   correctAnswers: integer("correct_answers").default(0),
   totalAttempts: integer("total_attempts").default(0),
+  timeTaken: integer("time_taken"), // in seconds, for time trial mode
+  problemsSolved: integer("problems_solved"), // for time trial mode
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 

@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Gamepad2, Brain, ChartLine, Rocket, Stars, Trophy, Calculator, Bot } from "lucide-react";
+import { Gamepad2, Brain, ChartLine, Rocket, Stars, Trophy, Calculator, Bot, Timer } from "lucide-react";
 
 export default function Home() {
   const [, navigate] = useLocation();
@@ -67,7 +67,7 @@ export default function Home() {
 
         <motion.div 
           variants={container}
-          className="grid md:grid-cols-2 gap-8 mb-12"
+          className="grid md:grid-cols-3 gap-8 mb-12"
         >
           <motion.div variants={item}>
             <Card className="group relative overflow-hidden border-2 border-transparent hover:border-purple-300 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20">
@@ -154,6 +154,51 @@ export default function Home() {
                   onClick={() => navigate("/puzzle")}
                 >
                   Start Puzzles
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div variants={item}>
+            <Card className="group relative overflow-hidden border-2 border-transparent hover:border-pink-300 transition-all duration-300 hover:shadow-2xl hover:shadow-pink-500/20">
+              <CardContent className="p-8">
+                <div className="absolute -right-8 -top-8 w-32 h-32 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-full blur-2xl transform group-hover:scale-150 transition-transform duration-500" />
+
+                <div className="relative h-48 mb-6 rounded-lg bg-gradient-to-b from-pink-100 to-pink-200 flex items-center justify-center overflow-hidden">
+                  <motion.div
+                    animate={floatAnimation}
+                    className="relative z-10"
+                  >
+                    <Timer className="w-20 h-20 text-pink-500" />
+                  </motion.div>
+                  <motion.div
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      rotate: [0, -180, -360],
+                    }}
+                    transition={{
+                      duration: 20,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                    className="absolute inset-0 opacity-10"
+                  >
+                    <Stars className="w-full h-full text-pink-700" />
+                  </motion.div>
+                  <Calculator className="absolute bottom-4 right-4 w-8 h-8 text-pink-400 opacity-50" />
+                </div>
+
+                <h2 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-purple-600">
+                  Time Trial
+                </h2>
+                <p className="mb-8 text-gray-600 text-lg">
+                  Race against time! Solve as many math problems as you can before the timer runs out.
+                </p>
+                <Button 
+                  className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-lg py-6"
+                  onClick={() => navigate("/time-trial")}
+                >
+                  Start Time Trial
                 </Button>
               </CardContent>
             </Card>
