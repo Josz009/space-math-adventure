@@ -13,6 +13,11 @@ const GRADE_RANGES = {
 const randomNumber = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 
+const generateDecimal = (min: number, max: number, decimals: number = 2): number => {
+  const value = Math.random() * (max - min) + min;
+  return Number(value.toFixed(decimals));
+};
+
 // Generate word problems with real-world contexts
 const CONTEXTS = {
   addition: [
@@ -30,6 +35,14 @@ const CONTEXTS = {
   division: [
     { template: "{n1} objects need to be divided equally into {n2} groups. How many objects will be in each group?", items: ['candies', 'stickers', 'marbles'] },
     { template: "You want to share {n1} {item} equally among {n2} friends. How many will each friend get?", items: ['cookies', 'cards', 'toys'] }
+  ],
+  mixed_operations: [
+    { template: "Start with {n1}, add {n2}, then multiply by {n3}. What's the result?", items: ['numbers', 'points', 'tokens'] },
+    { template: "Begin with {n1}, subtract {n2}, then divide by {n3}. What do you get?", items: ['coins', 'gems', 'crystals'] },
+    { template: "Multiply {n1} by {n2}, then subtract {n3}. What's the answer?", items: ['stars', 'medals', 'badges'] },
+    { template: "Take {n1}, divide by {n2}, then add {n3}. What's the final number?", items: ['energy', 'power', 'force'] },
+    { template: "You have {n1.toFixed(1)} units, use {n2.toFixed(1)}, then multiply by {n3.toFixed(1)}. What's left?", items: ['fuel', 'water', 'oxygen'] },
+    { template: "Start with {n1.toFixed(2)} meters, add {n2.toFixed(2)}, then divide by {n3}. What's the result?", items: ['length', 'distance', 'height'] }
   ]
 };
 
@@ -38,7 +51,8 @@ const CATEGORY_EMOJIS = {
   addition: ['➕', '🎈', '🍎', '📚', '✏️'],
   subtraction: ['➖', '🍬', '🦋', '🎴', '🧸'],
   multiplication: ['✖️', '📚', '🌸', '📦', '🎨'],
-  division: ['➗', '🍪', '🎯', '🎪', '🎨']
+  division: ['➗', '🍪', '🎯', '🎪', '🎨'],
+  mixed_operations: ['🎲', '🎮', '🎯', '🧮', '🔢', '🎪']
 };
 
 export interface GeneratedPuzzle {
@@ -55,8 +69,79 @@ export const generatePuzzle = (category: string, grade: number): GeneratedPuzzle
   const range = GRADE_RANGES[grade as keyof typeof GRADE_RANGES] || GRADE_RANGES[4];
 
   let puzzle: GeneratedPuzzle;
+  let num1: number, num2: number, num3: number, answer: number;
 
   switch (category) {
+    case 'mixed_operations': {
+      const useDecimals = Math.random() < 0.4;
+      const operationType = Math.random();
+
+      if (grade <= 2) {
+        if (useDecimals) {
+          num1 = generateDecimal(5, 20, 1);
+          num2 = generateDecimal(1, 10, 1);
+          num3 = generateDecimal(1, 5, 1);
+        } else {
+          num1 = randomNumber(5, 20);
+          num2 = randomNumber(1, 10);
+          num3 = randomNumber(1, 5);
+        }
+      } else if (grade <= 4) {
+        if (useDecimals) {
+          num1 = generateDecimal(10, 50, 1);
+          num2 = generateDecimal(5, 25, 1);
+          num3 = generateDecimal(2, 10, 1);
+        } else {
+          num1 = randomNumber(10, 50);
+          num2 = randomNumber(5, 25);
+          num3 = randomNumber(2, 10);
+        }
+      } else {
+        if (useDecimals) {
+          num1 = generateDecimal(20, 100, 2);
+          num2 = generateDecimal(10, 50, 2);
+          num3 = generateDecimal(2, 15, 2);
+        } else {
+          num1 = randomNumber(20, 100);
+          num2 = randomNumber(10, 50);
+          num3 = randomNumber(2, 15);
+        }
+      }
+
+      if (operationType < 0.2) {
+        answer = num1 + (num2 * num3);
+      } else if (operationType < 0.4) {
+        answer = num1 - (num2 / num3);
+      } else if (operationType < 0.6) {
+        answer = (num1 * num2) - num3;
+      } else if (operationType < 0.8) {
+        answer = num1 + num2 - num3;
+      } else {
+        answer = (num1 - num2) * num3;
+      }
+
+      if (useDecimals) {
+        answer = Number(answer.toFixed(2));
+      }
+
+      const context = CONTEXTS.mixed_operations[Math.floor(Math.random() * CONTEXTS.mixed_operations.length)];
+      const item = context.items[Math.floor(Math.random() * context.items.length)];
+      const question = context.template
+        .replace('{n1}', useDecimals ? num1.toFixed(2) : num1.toString())
+        .replace('{n2}', useDecimals ? num2.toFixed(2) : num2.toString())
+        .replace('{n3}', useDecimals ? num3.toFixed(2) : num3.toString())
+        .replace('objects', item);
+
+      puzzle = {
+        id,
+        type: 'mixed_operations',
+        question,
+        answer: answer.toString(),
+        hint: `Break down the problem into steps and solve one operation at a time`,
+        image: CATEGORY_EMOJIS.mixed_operations[Math.floor(Math.random() * CATEGORY_EMOJIS.mixed_operations.length)]
+      };
+      break;
+    }
     case 'addition': {
       const num1 = randomNumber(range.min, range.max);
       const num2 = randomNumber(range.min, range.max);
@@ -143,16 +228,15 @@ export const generatePuzzle = (category: string, grade: number): GeneratedPuzzle
     }
 
     default: {
-      // Default to addition if category is not recognized
-      const num1 = randomNumber(range.min, range.max);
-      const num2 = randomNumber(range.min, range.max);
-      puzzle = {
-        id,
-        type: 'addition',
-        question: `What is ${num1} + ${num2}?`,
-        answer: (num1 + num2).toString(),
-        hint: `Add ${num1} and ${num2}`,
-        image: '➕'
+       const num1 = randomNumber(range.min, range.max);
+        const num2 = randomNumber(range.min, range.max);
+        puzzle = {
+          id,
+          type: 'addition',
+          question: `What is ${num1} + ${num2}?`,
+          answer: (num1 + num2).toString(),
+          hint: `Add ${num1} and ${num2}`,
+          image: '➕'
       };
     }
   }
