@@ -37,6 +37,24 @@ export const MATH_TUTORIALS: Record<string, Tutorial> = {
     description: 'Learn division by sharing objects equally among groups!',
     steps: []
   },
+  decimals_addition: {
+    topic: 'decimals_addition',
+    title: 'Adding Decimal Numbers',
+    description: 'Learn how to add decimal numbers in space measurements!',
+    steps: []
+  },
+  decimals_subtraction: {
+    topic: 'decimals_subtraction',
+    title: 'Subtracting Decimal Numbers',
+    description: 'Learn how to subtract decimal numbers in space calculations!',
+    steps: []
+  },
+  mixed_operations: {
+    topic: 'mixed_operations',
+    title: 'Combined Operations Challenge',
+    description: 'Test your skills with mixed addition and subtraction problems!',
+    steps: []
+  },
   percentages: {
     topic: 'percentages',
     title: 'Space Percentages',
