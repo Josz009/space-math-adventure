@@ -106,7 +106,18 @@ const wordProblems = {
     (n1: number, n2: number, n3: number) => `You collect ${n1} space rocks, find ${n2} more, but lose ${n3}. How many do you have now?`,
     (n1: number, n2: number, n3: number) => `Your spaceship has ${n1} crew members, ${n2} more join, but ${n3} return to Earth. How many remain?`,
     (n1: number, n2: number, n3: number) => `You start with ${n1} fuel cells, add ${n2} new ones, then use ${n3}. How many are left?`,
-    (n1: number, n2: number, n3: number) => `A space garden has ${n1} plants, grows ${n2} more, but ${n3} don't survive. How many plants remain?`
+    (n1: number, n2: number, n3: number) => `A space garden has ${n1} plants, grows ${n2} more, but ${n3} don't survive. How many plants remain?`,
+    (n1: number, n2: number, n3: number) => `A space station has ${n1} solar panels, installs ${n2} new ones, but ${n3} get damaged. How many working panels remain?`,
+    (n1: number, n2: number, n3: number) => `You find ${n1} crystals in an asteroid, collect ${n2} more from another, and use ${n3} for experiments. How many crystals do you have left?`,
+    (n1: number, n2: number, n3: number) => `The space kitchen starts with ${n1} meals, prepares ${n2} more, but ${n3} are consumed by the crew. How many meals are available?`,
+    (n1: number, n2: number, n3: number) => `Your oxygen supply shows ${n1} hours, you gain ${n2} hours from backup tanks, but use ${n3} hours during a spacewalk. How many hours remain?`,
+    (n1: number, n2: number, n3: number) => `Your fuel gauge reads ${n1.toFixed(1)} liters, you add ${n2.toFixed(1)} liters, but use ${n3.toFixed(1)} liters for landing. How many liters remain?`,
+    (n1: number, n2: number, n3: number) => `A satellite orbits at ${n1.toFixed(1)} km altitude, rises by ${n2.toFixed(1)} km, then descends ${n3.toFixed(1)} km. What's its final altitude?`,
+    (n1: number, n2: number, n3: number) => `The space station temperature is ${n1.toFixed(1)}°C, increases by ${n2.toFixed(1)}°C, then drops ${n3.toFixed(1)}°C. What's the final temperature?`,
+    (n1: number, n2: number, n3: number) => `A cosmic sample weighs ${n1.toFixed(2)} grams, gains ${n2.toFixed(2)} grams of matter, but loses ${n3.toFixed(2)} grams through analysis. What's its final weight?`,
+        (n1: number, n2: number, n3: number) => `An asteroid field has ${n1} large rocks, splits into ${n2} more pieces, but ${n3} pieces drift away. How many pieces remain in the field?`,
+    (n1: number, n2: number, n3: number) => `Your space colony starts with ${n1} water tanks, receives ${n2} from Earth, but uses ${n3} for irrigation. How many tanks are left?`,
+    (n1: number, n2: number, n3: number) => `The observatory spots ${n1} comets, discovers ${n2} more, but loses track of ${n3}. How many comets are they currently tracking?`
   ]
 };
 
@@ -148,25 +159,59 @@ export function generateMathProblem(difficulty: number, topic: keyof Operations 
     }
 
     case 'mixed': {
-      // For mixed operations, generate three numbers and perform addition followed by subtraction
       if (difficulty === 1) {
-        num1 = generateNumber(5, 20);
-        num2 = generateNumber(1, 10);
-        num3 = generateNumber(1, 5);
+        // For beginners: smaller numbers, maybe one decimal place
+        const useDecimals = Math.random() < 0.3; // 30% chance for decimals
+        if (useDecimals) {
+          num1 = generateDecimal(5, 20, 1);
+          num2 = generateDecimal(1, 10, 1);
+          num3 = generateDecimal(1, 5, 1);
+        } else {
+          num1 = generateNumber(5, 20);
+          num2 = generateNumber(1, 10);
+          num3 = generateNumber(1, 5);
+        }
       } else if (difficulty === 2) {
-        num1 = generateNumber(10, 50);
-        num2 = generateNumber(5, 25);
-        num3 = generateNumber(5, 15);
+        // Medium difficulty: larger numbers, more decimals
+        const useDecimals = Math.random() < 0.5; // 50% chance for decimals
+        if (useDecimals) {
+          num1 = generateDecimal(10, 50, 1);
+          num2 = generateDecimal(5, 25, 1);
+          num3 = generateDecimal(5, 15, 1);
+        } else {
+          num1 = generateNumber(10, 50);
+          num2 = generateNumber(5, 25);
+          num3 = generateNumber(5, 15);
+        }
       } else {
-        num1 = generateNumber(20, 100);
-        num2 = generateNumber(10, 50);
-        num3 = generateNumber(10, 30);
+        // Advanced: larger numbers, more complex decimals
+        const useDecimals = Math.random() < 0.7; // 70% chance for decimals
+        if (useDecimals) {
+          num1 = generateDecimal(20, 100, 2);
+          num2 = generateDecimal(10, 50, 2);
+          num3 = generateDecimal(10, 30, 2);
+        } else {
+          num1 = generateNumber(20, 100);
+          num2 = generateNumber(10, 50);
+          num3 = generateNumber(10, 30);
+        }
       }
-      // Random choice between (a + b - c) or (a - b + c)
-      const addFirst = Math.random() < 0.5;
-      answer = addFirst 
-        ? num1 + num2 - (num3 || 0)
-        : num1 - num2 + (num3 || 0);
+      // Random choice between different operation combinations
+      const operationType = Math.random();
+      if (operationType < 0.4) {
+        // Addition then subtraction
+        answer = num1 + num2 - num3;
+      } else if (operationType < 0.8) {
+        // Subtraction then addition
+        answer = num1 - num2 + num3;
+      } else {
+        // Double addition or double subtraction (more challenging)
+        answer = Math.random() < 0.5 ? num1 + num2 + num3 : num1 - num2 - num3;
+      }
+      // If we used decimals, round the answer
+      if (typeof num1 === 'number' && num1 % 1 !== 0) {
+        answer = Number(answer.toFixed(2));
+      }
       break;
     }
      case '+':
