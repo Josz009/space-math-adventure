@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Minus, Divide, X as Multiply, Percent, Brain } from 'lucide-react';
+import { X, Plus, Minus, Divide, X as Multiply, Percent, Sigma, Brain, Calculator } from 'lucide-react';
 
 interface TopicSelectorProps {
   onSelect: (topic: string, grade: number) => void;
@@ -14,8 +14,10 @@ const topics = [
   { id: 'subtraction', name: 'Subtraction', icon: Minus },
   { id: 'multiplication', name: 'Multiplication', icon: Multiply },
   { id: 'division', name: 'Division', icon: Divide },
+  { id: 'decimals_addition', name: 'Decimal Addition', icon: Calculator },
+  { id: 'decimals_subtraction', name: 'Decimal Subtraction', icon: Calculator },
+  { id: 'mixed_operations', name: 'Mixed Operations', icon: Sigma },
   { id: 'percentages', name: 'Percentages', icon: Percent },
-  { id: 'mixed', name: 'Mixed Problems', icon: Brain },
 ];
 
 const grades = [3, 4, 5, 6];
@@ -46,7 +48,7 @@ export function TopicSelector({ onSelect, onClose }: TopicSelectorProps) {
         >
           <X className="h-4 w-4" />
         </Button>
-        
+
         <CardContent className="p-6">
           <motion.h2 
             className="text-3xl font-bold mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600"
