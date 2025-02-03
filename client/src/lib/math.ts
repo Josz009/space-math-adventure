@@ -115,9 +115,20 @@ const wordProblems = {
     (n1: number, n2: number, n3: number) => `A satellite orbits at ${n1.toFixed(1)} km altitude, rises by ${n2.toFixed(1)} km, then descends ${n3.toFixed(1)} km. What's its final altitude?`,
     (n1: number, n2: number, n3: number) => `The space station temperature is ${n1.toFixed(1)}°C, increases by ${n2.toFixed(1)}°C, then drops ${n3.toFixed(1)}°C. What's the final temperature?`,
     (n1: number, n2: number, n3: number) => `A cosmic sample weighs ${n1.toFixed(2)} grams, gains ${n2.toFixed(2)} grams of matter, but loses ${n3.toFixed(2)} grams through analysis. What's its final weight?`,
-        (n1: number, n2: number, n3: number) => `An asteroid field has ${n1} large rocks, splits into ${n2} more pieces, but ${n3} pieces drift away. How many pieces remain in the field?`,
+    (n1: number, n2: number, n3: number) => `An asteroid field has ${n1} large rocks, splits into ${n2} more pieces, but ${n3} pieces drift away. How many pieces remain in the field?`,
     (n1: number, n2: number, n3: number) => `Your space colony starts with ${n1} water tanks, receives ${n2} from Earth, but uses ${n3} for irrigation. How many tanks are left?`,
-    (n1: number, n2: number, n3: number) => `The observatory spots ${n1} comets, discovers ${n2} more, but loses track of ${n3}. How many comets are they currently tracking?`
+    (n1: number, n2: number, n3: number) => `The observatory spots ${n1} comets, discovers ${n2} more, but loses track of ${n3}. How many comets are they currently tracking?`,
+    (n1: number, n2: number, n3: number) => `The space station starts with ${n1} astronauts, ${n2} leave for Earth, then ${n3} new ones arrive. How many astronauts are there now?`,
+    (n1: number, n2: number, n3: number) => `You have ${n1} energy crystals, use ${n2} for the shields, then find ${n3} more in an asteroid. How many crystals do you have now?`,
+    (n1: number, n2: number, n3: number) => `Your cargo bay has ${n1} containers, releases ${n2} to Earth, then receives ${n3} from a supply ship. How many containers are there?`,
+    (n1: number, n2: number, n3: number) => `The observatory tracks ${n1} meteors, loses sight of ${n2}, then spots ${n3} new ones. How many meteors are they tracking now?`,
+    (n1: number, n2: number, n3: number) => `Your fuel tank shows ${n1.toFixed(1)} liters, uses ${n2.toFixed(1)} for takeoff, then receives ${n3.toFixed(1)} from a refuel. How many liters remain?`,
+    (n1: number, n2: number, n3: number) => `A probe orbits at ${n1.toFixed(1)} km, descends ${n2.toFixed(1)} km, then rises ${n3.toFixed(1)} km. What's its current altitude?`,
+    (n1: number, n2: number, n3: number) => `The lab sample weighs ${n1.toFixed(2)} grams, loses ${n2.toFixed(2)} grams in processing, then gains ${n3.toFixed(2)} grams in crystallization. What's the final weight?`,
+    (n1: number, n2: number, n3: number) => `From ${n1} space suits, ${n2} need repairs and ${n3} more arrive from Earth. How many working suits are available?`,
+    (n1: number, n2: number, n3: number) => `The greenhouse has ${n1} plants, ${n2} die from space radiation but then ${n3} new seedlings sprout. How many plants survive?`,
+    (n1: number, n2: number, n3: number) => `Your ship's shields are at ${n1.toFixed(1)}%, drop by ${n2.toFixed(1)}% in the asteroid field, then recover ${n3.toFixed(1)}% from repairs. What's the final shield percentage?`
+
   ]
 };
 
