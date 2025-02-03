@@ -38,7 +38,6 @@ function generateDecimal(min: number, max: number, decimals: number = 2): number
   return Number(value.toFixed(decimals));
 }
 
-// Large array of word problem templates for each operation
 const wordProblems = {
   '+': [
     (n1: number, n2: number) => `If you have ${n1} space rocks and find ${n2} more, how many do you have in total?`,
@@ -91,16 +90,16 @@ const wordProblems = {
     (n1: number, n2: number) => `${n2}% of ${n1} space rocks were collected. How many rocks were gathered?`
   ],
   'decimal+': [
-    (n1: number, n2: number) => `A space fuel tank contains ${n1} liters and you add ${n2} more liters. How many liters do you have now?`,
-    (n1: number, n2: number) => `Your spaceship weighs ${n1} tons and picks up ${n2} tons of cargo. What's the total weight?`,
-    (n1: number, n2: number) => `The temperature increases by ${n2} degrees from ${n1} degrees. What's the final temperature?`,
-    (n1: number, n2: number) => `A cosmic dust sample weighs ${n1} grams, and you find another weighing ${n2} grams. What's their combined weight?`
+    (n1: number, n2: number) => `A space fuel tank contains ${n1.toFixed(2)} liters and you add ${n2.toFixed(2)} more liters. How many liters do you have now?`,
+    (n1: number, n2: number) => `Your spaceship weighs ${n1.toFixed(2)} tons and picks up ${n2.toFixed(2)} tons of cargo. What's the total weight?`,
+    (n1: number, n2: number) => `The temperature increases by ${n2.toFixed(1)} degrees from ${n1.toFixed(1)} degrees. What's the final temperature?`,
+    (n1: number, n2: number) => `A cosmic dust sample weighs ${n1.toFixed(2)} grams, and you find another weighing ${n2.toFixed(2)} grams. What's their combined weight?`
   ],
   'decimal-': [
-    (n1: number, n2: number) => `You have ${n1} liters of space fuel and use ${n2} liters. How many liters remain?`,
-    (n1: number, n2: number) => `The space station's temperature drops by ${n2} degrees from ${n1} degrees. What's the new temperature?`,
-    (n1: number, n2: number) => `Your cargo weighs ${n1} tons and you unload ${n2} tons. How many tons are left?`,
-    (n1: number, n2: number) => `A satellite orbits at ${n1} kilometers and descends by ${n2} kilometers. What's its new altitude?`
+    (n1: number, n2: number) => `You have ${n1.toFixed(2)} liters of space fuel and use ${n2.toFixed(2)} liters. How many liters remain?`,
+    (n1: number, n2: number) => `The space station's temperature drops by ${n2.toFixed(1)} degrees from ${n1.toFixed(1)} degrees. What's the new temperature?`,
+    (n1: number, n2: number) => `Your cargo weighs ${n1.toFixed(2)} tons and you unload ${n2.toFixed(2)} tons. How many tons are left?`,
+    (n1: number, n2: number) => `A satellite orbits at ${n1.toFixed(1)} kilometers and descends by ${n2.toFixed(1)} kilometers. What's its new altitude?`
   ],
   'mixed': [
     (n1: number, n2: number, n3: number) => `You collect ${n1} space rocks, find ${n2} more, but lose ${n3}. How many do you have now?`,
@@ -127,8 +126,13 @@ const wordProblems = {
     (n1: number, n2: number, n3: number) => `The lab sample weighs ${n1.toFixed(2)} grams, loses ${n2.toFixed(2)} grams in processing, then gains ${n3.toFixed(2)} grams in crystallization. What's the final weight?`,
     (n1: number, n2: number, n3: number) => `From ${n1} space suits, ${n2} need repairs and ${n3} more arrive from Earth. How many working suits are available?`,
     (n1: number, n2: number, n3: number) => `The greenhouse has ${n1} plants, ${n2} die from space radiation but then ${n3} new seedlings sprout. How many plants survive?`,
-    (n1: number, n2: number, n3: number) => `Your ship's shields are at ${n1.toFixed(1)}%, drop by ${n2.toFixed(1)}% in the asteroid field, then recover ${n3.toFixed(1)}% from repairs. What's the final shield percentage?`
-
+    (n1: number, n2: number, n3: number) => `Your ship's shields are at ${n1.toFixed(1)}%, drop by ${n2.toFixed(1)}% in the asteroid field, then recover ${n3.toFixed(1)}% from repairs. What's the final shield percentage?`,
+     (n1: number, n2: number, n3: number) => `Calculate: ${n1} + ${n2} × ${n3}`,
+    (n1: number, n2: number, n3: number) => `Solve: ${n1} - ${n2} ÷ ${n3}`,
+    (n1: number, n2: number, n3: number) => `What is ${n1} × ${n2} - ${n3}?`,
+    (n1: number, n2: number, n3: number) => `Calculate: ${n1.toFixed(1)} - ${n2.toFixed(1)} + ${n3.toFixed(1)}`,
+    (n1: number, n2: number, n3: number) => `Solve: ${n1.toFixed(1)} × ${n2} + ${n3.toFixed(1)}`,
+    (n1: number, n2: number, n3: number) => `What is ${n1} ÷ ${n2} + ${n3.toFixed(1)}?`
   ]
 };
 
@@ -148,7 +152,6 @@ export function generateMathProblem(difficulty: number, topic: keyof Operations 
     ? operations.mixed_operations
     : operations[topic];
 
-  // Generate numbers based on difficulty and operation
   switch (operation) {
     case 'decimal+':
     case 'decimal-': {
@@ -170,9 +173,10 @@ export function generateMathProblem(difficulty: number, topic: keyof Operations 
     }
 
     case 'mixed': {
+      const operationType = Math.random();
+      const useDecimals = Math.random() < 0.4;
+
       if (difficulty === 1) {
-        // For beginners: smaller numbers, maybe one decimal place
-        const useDecimals = Math.random() < 0.3; // 30% chance for decimals
         if (useDecimals) {
           num1 = generateDecimal(5, 20, 1);
           num2 = generateDecimal(1, 10, 1);
@@ -183,8 +187,6 @@ export function generateMathProblem(difficulty: number, topic: keyof Operations 
           num3 = generateNumber(1, 5);
         }
       } else if (difficulty === 2) {
-        // Medium difficulty: larger numbers, more decimals
-        const useDecimals = Math.random() < 0.5; // 50% chance for decimals
         if (useDecimals) {
           num1 = generateDecimal(10, 50, 1);
           num2 = generateDecimal(5, 25, 1);
@@ -195,8 +197,6 @@ export function generateMathProblem(difficulty: number, topic: keyof Operations 
           num3 = generateNumber(5, 15);
         }
       } else {
-        // Advanced: larger numbers, more complex decimals
-        const useDecimals = Math.random() < 0.7; // 70% chance for decimals
         if (useDecimals) {
           num1 = generateDecimal(20, 100, 2);
           num2 = generateDecimal(10, 50, 2);
@@ -207,24 +207,26 @@ export function generateMathProblem(difficulty: number, topic: keyof Operations 
           num3 = generateNumber(10, 30);
         }
       }
-      // Random choice between different operation combinations
-      const operationType = Math.random();
-      if (operationType < 0.4) {
-        // Addition then subtraction
-        answer = num1 + num2 - num3;
+
+
+      if (operationType < 0.2) {
+        answer = num1 + (num2 * num3);
+      } else if (operationType < 0.4) {
+         answer = num1 - (num2 / num3);
+      } else if (operationType < 0.6) {
+         answer = (num1 * num2) - num3;
       } else if (operationType < 0.8) {
-        // Subtraction then addition
-        answer = num1 - num2 + num3;
+        answer = num1 + num2 - num3;
       } else {
-        // Double addition or double subtraction (more challenging)
-        answer = Math.random() < 0.5 ? num1 + num2 + num3 : num1 - num2 - num3;
+        answer = num1 - num2 + num3;
       }
-      // If we used decimals, round the answer
-      if (typeof num1 === 'number' && num1 % 1 !== 0) {
+
+      if (useDecimals || typeof num1 === 'number' && num1 % 1 !== 0) {
         answer = Number(answer.toFixed(2));
       }
       break;
     }
+
      case '+':
       if (difficulty === 1) {
         num1 = generateNumber(2, 20);
@@ -233,11 +235,10 @@ export function generateMathProblem(difficulty: number, topic: keyof Operations 
         num1 = generateNumber(15, 50);
         num2 = generateNumber(15, 50);
       } else {
-        // Make more challenging combinations
         const options = [
-          () => [generateNumber(50, 999), generateNumber(50, 999)], // Large numbers
-          () => [generateNumber(100, 500), generateNumber(500, 999)], // Mixed sizes
-          () => [generateNumber(1000, 2000), generateNumber(50, 100)] // Very large + small
+          () => [generateNumber(50, 999), generateNumber(50, 999)],
+          () => [generateNumber(100, 500), generateNumber(500, 999)],
+          () => [generateNumber(1000, 2000), generateNumber(50, 100)]
         ];
         [num1, num2] = options[Math.floor(Math.random() * options.length)]();
       }
@@ -252,7 +253,6 @@ export function generateMathProblem(difficulty: number, topic: keyof Operations 
         num2 = generateNumber(10, 30);
         num1 = generateNumber(num2 + 1, num2 + 50);
       } else {
-        // More challenging combinations
         const options = [
           () => [generateNumber(500, 999), generateNumber(50, 100)],
           () => [generateNumber(1000, 2000), generateNumber(100, 500)],
@@ -265,12 +265,10 @@ export function generateMathProblem(difficulty: number, topic: keyof Operations 
 
     case '*':
       if (difficulty === 1) {
-        // Basic multiplication tables
         const tables = [2, 3, 4, 5, 10];
         num1 = tables[Math.floor(Math.random() * tables.length)];
         num2 = generateNumber(1, 10);
       } else if (difficulty === 2) {
-        // More complex combinations
         const options = [
           () => [generateNumber(2, 12), generateNumber(11, 15)],
           () => [generateNumber(5, 15), generateNumber(5, 15)],
@@ -278,7 +276,6 @@ export function generateMathProblem(difficulty: number, topic: keyof Operations 
         ];
         [num1, num2] = options[Math.floor(Math.random() * options.length)]();
       } else {
-        // Advanced combinations
         const options = [
           () => [generateNumber(11, 20), generateNumber(11, 20)],
           () => [generateNumber(15, 25), generateNumber(5, 15)],
@@ -291,15 +288,12 @@ export function generateMathProblem(difficulty: number, topic: keyof Operations 
 
     case '/':
       if (difficulty === 1) {
-        // Simple division with small numbers
         num2 = generateNumber(2, 5);
         answer = generateNumber(1, 10);
       } else if (difficulty === 2) {
-        // Medium difficulty divisions
         num2 = generateNumber(3, 8);
         answer = generateNumber(5, 15);
       } else {
-        // More complex divisions
         const options = [
           () => [generateNumber(5, 12), generateNumber(10, 20)],
           () => [generateNumber(8, 15), generateNumber(5, 15)],
@@ -309,21 +303,18 @@ export function generateMathProblem(difficulty: number, topic: keyof Operations 
         num2 = divisor;
         answer = quotient;
       }
-      num1 = num2 * answer; // Ensure clean division
+      num1 = num2 * answer;
       break;
 
     case '%':
       if (difficulty === 1) {
-        // Simple percentages (10%, 20%, etc.)
         const commonPercentages = [10, 20, 25, 50, 75, 100];
         num2 = commonPercentages[Math.floor(Math.random() * commonPercentages.length)];
         num1 = generateNumber(10, 100);
       } else if (difficulty === 2) {
-        // More varied percentages
-        num2 = generateNumber(1, 20) * 5; // 5%, 10%, 15%, etc.
+        num2 = generateNumber(1, 20) * 5;
         num1 = generateNumber(20, 200);
       } else {
-        // Complex percentage calculations
         const options = [
           () => [generateNumber(50, 500), generateNumber(1, 100)],
           () => [generateNumber(200, 1000), generateNumber(5, 95)],
@@ -337,12 +328,10 @@ export function generateMathProblem(difficulty: number, topic: keyof Operations 
       return generateMathProblem(difficulty, 'addition');
   }
 
-  // Generate question
   const question = operation === 'mixed'
     ? generateWordProblem('mixed', num1, num2, num3)
     : generateWordProblem(operation, num1, num2);
 
-  // Generate wrong answers
   const wrongAnswers = new Set<number>();
 
   while (wrongAnswers.size < 3) {
@@ -357,16 +346,15 @@ export function generateMathProblem(difficulty: number, topic: keyof Operations 
       ];
       wrongAnswer = variations[Math.floor(Math.random() * variations.length)];
     } else if (operation === 'mixed') {
-      const variations = [
+       const variations = [
         answer + generateNumber(1, 5),
         answer - generateNumber(1, 5),
-        num1 + num2, // Forgetting the third operation
-        num1 - num2, // Forgetting the third operation
-        (num1 + num2 + (num3 || 0)) // Adding all numbers
+        num1 + num2,
+        num1 - num2,
+         (num1 + num2 + (num3 || 0))
       ];
       wrongAnswer = variations[Math.floor(Math.random() * variations.length)];
     } else {
-      // Common mistake patterns based on operation
       const variations = [
         answer + generateNumber(1, Math.max(5, Math.floor(answer * 0.2))),
         answer - generateNumber(1, Math.max(5, Math.floor(answer * 0.2))),
